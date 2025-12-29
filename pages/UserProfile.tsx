@@ -239,10 +239,29 @@ const UserProfile: React.FC = () => {
 
    const handleSavePet = (e: React.FormEvent) => {
       e.preventDefault();
-      if (!user) return;
-      userPetService.save({ ...petFormData, ownerEmail: user.email }, editingPet?.id);
-      setUserPets(userPetService.getByOwner(user.email));
-      setIsPetModalOpen(false);
+      console.log('Tentando salvar pet...', petFormData);
+
+      if (!user) {
+         console.error('Usuário não encontrado ao tentar salvar.');
+         alert('Erro: Usuário não identificado. Recarregue a página.');
+         return;
+      }
+
+      try {
+         const petToSave = { ...petFormData, ownerEmail: user.email };
+         console.log('Dados finais para salvar:', petToSave);
+
+         userPetService.save(petToSave, editingPet?.id);
+
+         const updatedPets = userPetService.getByOwner(user.email);
+         setUserPets(updatedPets);
+
+         setIsPetModalOpen(false);
+         alert(editingPet ? 'Prontuário atualizado com sucesso!' : 'Novo amigo salvo com sucesso!');
+      } catch (error) {
+         console.error('Erro ao salvar pet:', error);
+         alert('Ocorreu um erro ao salvar as informações. Tente novamente.');
+      }
    };
 
    const handleDeletePet = (id: string) => {
