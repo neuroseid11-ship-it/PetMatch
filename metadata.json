@@ -1,0 +1,7 @@
+{
+  "name": "PetMatch - Guardian Platform",
+  "description": "A gamified pet adoption and community platform featuring a Guardian's Journey dashboard, Adoption League fantasy game, and an interactive Solidarity Map.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
