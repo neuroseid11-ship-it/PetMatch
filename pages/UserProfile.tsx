@@ -75,8 +75,9 @@ const UserProfile: React.FC = () => {
                   setProfileFormData({ ...profile });
                   setCurrentUserRole(localStorage.getItem('petmatch_user_role'));
 
-                  // TODO: Fetch real pets
-                  // setUserPets(await userPetService.getByOwner(profile.email));
+                  // Fetch real pets
+                  const pets = userPetService.getByOwner(profile.email);
+                  setUserPets(pets);
                }
             }
          } catch (error) {
