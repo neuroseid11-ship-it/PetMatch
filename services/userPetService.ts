@@ -14,7 +14,8 @@ export const userPetService = {
       console.error('Error parsing pet data:', e);
       allPets = [];
     }
-    return allPets.filter(p => p.ownerEmail === email);
+    if (!email) return [];
+    return allPets.filter(p => p.ownerEmail && p.ownerEmail.toLowerCase() === email.toLowerCase());
   },
 
   save: (pet: Omit<UserPet, 'id'>, id?: string): UserPet => {
