@@ -135,7 +135,6 @@ const SolidarityMap: React.FC = () => {
       // but here we just want to ensure we don't lose local if user interacted, 
       // though typically we just replace to be safe and consistent)
       setMarkers([...localMarkers, ...dbPoints]);
-
     } catch (error) {
       console.error("Error loading markers", error);
     }
