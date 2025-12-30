@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { supabase } from '../lib/supabaseClient';
 import {
   ArrowLeft, Camera, PawPrint, Save,
   MapPin, Info, Tag, Heart, FileText, User, ShieldCheck, Upload, X, Building2,
@@ -19,7 +20,7 @@ const RegisterPet: React.FC = () => {
   const [ongs, setOngs] = useState<ONG[]>([]);
 
   const [formData, setFormData] = useState<Omit<RegisteredPet, 'id'>>({
-    ownerEmail: localStorage.getItem('petmatch_user_email') || '',
+    ownerEmail: '',
     name: '',
     type: 'dog',
     breed: '',
@@ -52,6 +53,13 @@ const RegisterPet: React.FC = () => {
 
   useEffect(() => {
     setOngs(ongService.getAll());
+
+    // Get current user email
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.email) {
+        setFormData(prev => ({ ...prev, ownerEmail: session.user.email! }));
+      }
+    });
     // Use an async function inside useEffect to await petService.getById
     const fetchPet = async () => {
       if (id) {
