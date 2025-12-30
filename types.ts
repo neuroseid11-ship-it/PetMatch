@@ -152,6 +152,8 @@ export interface HealthEvent {
   type: 'consultation' | 'surgery' | 'medicine';
   description: string;
   date: string;
+  time?: string;
+  frequency?: string;
   completed?: boolean;
 }
 

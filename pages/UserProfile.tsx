@@ -804,7 +804,8 @@ const UserProfile: React.FC = () => {
                                  return (
                                     <div key={e.id} className="flex gap-2 items-center bg-[#fdf5ed] p-3 rounded-2xl border border-[#c9a688]/30">
                                        <input value={e.description} onChange={ev => handleUpdateHealthEvent(i, 'description', ev.target.value)} className="flex-1 bg-transparent border-none text-xs font-bold outline-none" placeholder="Motivo da consulta" />
-                                       <input type="date" value={e.date} onChange={ev => handleUpdateHealthEvent(i, 'date', ev.target.value)} className="w-28 bg-transparent border-none text-[10px] font-bold outline-none" />
+                                       <input type="date" value={e.date} onChange={ev => handleUpdateHealthEvent(i, 'date', ev.target.value)} className="w-[88px] bg-transparent border-none text-[10px] font-bold outline-none" />
+                                       <input type="time" value={e.time || ''} onChange={ev => handleUpdateHealthEvent(i, 'time', ev.target.value)} className="w-[50px] bg-transparent border-none text-[10px] font-bold outline-none" />
                                        <button type="button" onClick={() => handleRemoveHealthEvent(i)} className="text-red-500 hover:scale-110 transition-transform"><XCircle size={16} /></button>
                                     </div>
                                  );
@@ -820,7 +821,8 @@ const UserProfile: React.FC = () => {
                                  return (
                                     <div key={e.id} className="flex gap-2 items-center bg-[#fff0f0] p-3 rounded-2xl border border-red-200">
                                        <input value={e.description} onChange={ev => handleUpdateHealthEvent(i, 'description', ev.target.value)} className="flex-1 bg-transparent border-none text-xs font-bold outline-none text-red-800" placeholder="Procedimento" />
-                                       <input type="date" value={e.date} onChange={ev => handleUpdateHealthEvent(i, 'date', ev.target.value)} className="w-28 bg-transparent border-none text-[10px] font-bold outline-none text-red-800" />
+                                       <input type="date" value={e.date} onChange={ev => handleUpdateHealthEvent(i, 'date', ev.target.value)} className="w-[88px] bg-transparent border-none text-[10px] font-bold outline-none text-red-800" />
+                                       <input type="time" value={e.time || ''} onChange={ev => handleUpdateHealthEvent(i, 'time', ev.target.value)} className="w-[50px] bg-transparent border-none text-[10px] font-bold outline-none text-red-800" />
                                        <button type="button" onClick={() => handleRemoveHealthEvent(i)} className="text-red-500 hover:scale-110 transition-transform"><XCircle size={16} /></button>
                                     </div>
                                  );
@@ -834,10 +836,14 @@ const UserProfile: React.FC = () => {
                               {petFormData.healthEvents?.map((e, i) => {
                                  if (e.type !== 'medicine') return null;
                                  return (
-                                    <div key={e.id} className="flex gap-2 items-center bg-[#f0f9ff] p-3 rounded-2xl border border-blue-200">
-                                       <input value={e.description} onChange={ev => handleUpdateHealthEvent(i, 'description', ev.target.value)} className="flex-1 bg-transparent border-none text-xs font-bold outline-none text-blue-800" placeholder="Medicamento e Dosagem" />
-                                       <input type="date" value={e.date} onChange={ev => handleUpdateHealthEvent(i, 'date', ev.target.value)} className="w-28 bg-transparent border-none text-[10px] font-bold outline-none text-blue-800" />
-                                       <button type="button" onClick={() => handleRemoveHealthEvent(i)} className="text-red-500 hover:scale-110 transition-transform"><XCircle size={16} /></button>
+                                    <div key={e.id} className="flex flex-col gap-2 bg-[#f0f9ff] p-3 rounded-2xl border border-blue-200">
+                                       <div className="flex gap-2 items-center w-full">
+                                          <input value={e.description} onChange={ev => handleUpdateHealthEvent(i, 'description', ev.target.value)} className="flex-1 bg-transparent border-none text-xs font-bold outline-none text-blue-800" placeholder="Nome do Medicamento" />
+                                          <input type="date" value={e.date} onChange={ev => handleUpdateHealthEvent(i, 'date', ev.target.value)} className="w-[88px] bg-transparent border-none text-[10px] font-bold outline-none text-blue-800" />
+                                          <input type="time" value={e.time || ''} onChange={ev => handleUpdateHealthEvent(i, 'time', ev.target.value)} className="w-[50px] bg-transparent border-none text-[10px] font-bold outline-none text-blue-800" />
+                                          <button type="button" onClick={() => handleRemoveHealthEvent(i)} className="text-red-500 hover:scale-110 transition-transform"><XCircle size={16} /></button>
+                                       </div>
+                                       <input value={e.frequency || ''} onChange={ev => handleUpdateHealthEvent(i, 'frequency', ev.target.value)} className="w-full bg-blue-50/50 p-2 rounded-lg border-none text-[10px] font-bold outline-none text-blue-800 placeholder-blue-300" placeholder="Frequência (ex: 2x ao dia)" />
                                     </div>
                                  );
                               })}
