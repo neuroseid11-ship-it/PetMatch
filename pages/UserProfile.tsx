@@ -78,8 +78,12 @@ const UserProfile: React.FC = () => {
                   setCurrentUserRole(localStorage.getItem('petmatch_user_role'));
 
                   // Fetch real pets
-                  const pets = userPetService.getByOwner(profile.email);
+                  const pets = await userPetService.getByOwner(profile.email);
                   setUserPets(pets);
+
+                  // Fetch adoption pets
+                  const allAdoptionPets = await petService.getAll();
+                  setAdoptionPets(allAdoptionPets.filter(p => p.ownerEmail === profile.email));
                }
             }
          } catch (error) {
