@@ -37,9 +37,11 @@ const UserProfile: React.FC = () => {
       species: 'dog',
       breed: '',
       age: '',
+      birthDate: '',
       weight: '',
       photoUrl: '',
       vaccines: [],
+      healthEvents: [],
       diseases: '',
       surgeries: '',
       medicines: '',
@@ -236,6 +238,55 @@ const UserProfile: React.FC = () => {
    const handleRemoveVaccine = (index: number) => {
       const newVaccines = petFormData.vaccines.filter((_, i) => i !== index);
       setPetFormData({ ...petFormData, vaccines: newVaccines });
+   };
+
+   const calculateAge = (dateString: string) => {
+      if (!dateString) return '';
+      const today = new Date();
+      const birth = new Date(dateString);
+      let years = today.getFullYear() - birth.getFullYear();
+      const m = today.getMonth() - birth.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+         years--;
+      }
+      if (years === 0) {
+         // Calculate months if less than 1 year
+         let months = (today.getFullYear() - birth.getFullYear()) * 12 + (today.getMonth() - birth.getMonth());
+         if (today.getDate() < birth.getDate()) months--;
+         return `${months} meses`;
+      }
+      return `${years} anos`;
+   };
+
+   const handleBirthDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const date = e.target.value;
+      const age = calculateAge(date);
+      setPetFormData(prev => ({ ...prev, birthDate: date, age }));
+   };
+
+   const handleAddHealthEvent = (type: 'consultation' | 'surgery' | 'medicine') => {
+      const newEvent = {
+         id: Math.random().toString(36).substr(2, 5),
+         type,
+         description: '',
+         date: '',
+         completed: false
+      };
+      setPetFormData(prev => ({
+         ...prev,
+         healthEvents: [...(prev.healthEvents || []), newEvent]
+      }));
+   };
+
+   const handleUpdateHealthEvent = (index: number, field: string, value: any) => {
+      const events = [...(petFormData.healthEvents || [])];
+      events[index] = { ...events[index], [field]: value };
+      setPetFormData(prev => ({ ...prev, healthEvents: events }));
+   };
+
+   const handleRemoveHealthEvent = (index: number) => {
+      const events = (petFormData.healthEvents || []).filter((_, i) => i !== index);
+      setPetFormData(prev => ({ ...prev, healthEvents: events }));
    };
 
    const handleSavePet = (e: React.FormEvent) => {
@@ -711,6 +762,14 @@ const UserProfile: React.FC = () => {
                                     <label className="text-[10px] font-black text-[#8b4513] uppercase ml-4">Nº do Chip</label>
                                     <input value={petFormData.chipNumber || ''} onChange={e => setPetFormData({ ...petFormData, chipNumber: e.target.value })} className="w-full wood-inner p-4 text-sm font-bold border-2 border-[#c9a688]" />
                                  </div>
+                                 <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-[#8b4513] uppercase ml-4">Nascimento</label>
+                                    <input type="date" value={petFormData.birthDate || ''} onChange={handleBirthDateChange} className="w-full wood-inner p-4 text-sm font-bold border-2 border-[#c9a688]" />
+                                 </div>
+                                 <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-[#8b4513] uppercase ml-4">Idade</label>
+                                    <input readOnly value={petFormData.age} className="w-full wood-inner p-4 text-sm font-bold border-2 border-[#c9a688] bg-black/5" />
+                                 </div>
                               </div>
                            </div>
                         </div>
@@ -728,6 +787,61 @@ const UserProfile: React.FC = () => {
                                  </div>
                               ))}
                               <button type="button" onClick={handleAddVaccine} className="w-full py-3 border-2 border-dashed border-[#55a630] rounded-2xl text-[10px] font-black text-[#55a630] uppercase hover:bg-emerald-50 transition-all">+ Adicionar Registro</button>
+                           </div>
+                        </div>
+
+                        {/* AGENDA DE SAÚDE */}
+                        <div className="space-y-6 pt-6 border-t border-[#c9a688]/30">
+                           <h3 className="text-xl font-black text-[#5d2e0a] uppercase tracking-tighter flex items-center gap-2">
+                              <Calendar size={24} className="text-[#55a630]" /> Agenda de Saúde
+                           </h3>
+
+                           {/* CONSULTAS */}
+                           <div className="space-y-2">
+                              <label className="text-[10px] font-black text-[#8b4513] uppercase ml-2 flex items-center gap-1"><Stethoscope size={12} /> Consultas Agendadas</label>
+                              {petFormData.healthEvents?.map((e, i) => {
+                                 if (e.type !== 'consultation') return null;
+                                 return (
+                                    <div key={e.id} className="flex gap-2 items-center bg-[#fdf5ed] p-3 rounded-2xl border border-[#c9a688]/30">
+                                       <input value={e.description} onChange={ev => handleUpdateHealthEvent(i, 'description', ev.target.value)} className="flex-1 bg-transparent border-none text-xs font-bold outline-none" placeholder="Motivo da consulta" />
+                                       <input type="date" value={e.date} onChange={ev => handleUpdateHealthEvent(i, 'date', ev.target.value)} className="w-28 bg-transparent border-none text-[10px] font-bold outline-none" />
+                                       <button type="button" onClick={() => handleRemoveHealthEvent(i)} className="text-red-500 hover:scale-110 transition-transform"><XCircle size={16} /></button>
+                                    </div>
+                                 );
+                              })}
+                              <button type="button" onClick={() => handleAddHealthEvent('consultation')} className="w-full py-2 border border-dashed border-[#c9a688] rounded-xl text-[9px] font-black text-[#8b4513] uppercase hover:bg-[#f1dfcf] transition-all">+ Agendar Consulta</button>
+                           </div>
+
+                           {/* CIRURGIAS */}
+                           <div className="space-y-2">
+                              <label className="text-[10px] font-black text-[#8b4513] uppercase ml-2 flex items-center gap-1"><Scissors size={12} /> Cirurgias</label>
+                              {petFormData.healthEvents?.map((e, i) => {
+                                 if (e.type !== 'surgery') return null;
+                                 return (
+                                    <div key={e.id} className="flex gap-2 items-center bg-[#fff0f0] p-3 rounded-2xl border border-red-200">
+                                       <input value={e.description} onChange={ev => handleUpdateHealthEvent(i, 'description', ev.target.value)} className="flex-1 bg-transparent border-none text-xs font-bold outline-none text-red-800" placeholder="Procedimento" />
+                                       <input type="date" value={e.date} onChange={ev => handleUpdateHealthEvent(i, 'date', ev.target.value)} className="w-28 bg-transparent border-none text-[10px] font-bold outline-none text-red-800" />
+                                       <button type="button" onClick={() => handleRemoveHealthEvent(i)} className="text-red-500 hover:scale-110 transition-transform"><XCircle size={16} /></button>
+                                    </div>
+                                 );
+                              })}
+                              <button type="button" onClick={() => handleAddHealthEvent('surgery')} className="w-full py-2 border border-dashed border-red-300 rounded-xl text-[9px] font-black text-red-500 uppercase hover:bg-red-50 transition-all">+ Agendar Cirurgia</button>
+                           </div>
+
+                           {/* REMÉDIOS */}
+                           <div className="space-y-2">
+                              <label className="text-[10px] font-black text-[#8b4513] uppercase ml-2 flex items-center gap-1"><Pill size={12} /> Medicação</label>
+                              {petFormData.healthEvents?.map((e, i) => {
+                                 if (e.type !== 'medicine') return null;
+                                 return (
+                                    <div key={e.id} className="flex gap-2 items-center bg-[#f0f9ff] p-3 rounded-2xl border border-blue-200">
+                                       <input value={e.description} onChange={ev => handleUpdateHealthEvent(i, 'description', ev.target.value)} className="flex-1 bg-transparent border-none text-xs font-bold outline-none text-blue-800" placeholder="Medicamento e Dosagem" />
+                                       <input type="date" value={e.date} onChange={ev => handleUpdateHealthEvent(i, 'date', ev.target.value)} className="w-28 bg-transparent border-none text-[10px] font-bold outline-none text-blue-800" />
+                                       <button type="button" onClick={() => handleRemoveHealthEvent(i)} className="text-red-500 hover:scale-110 transition-transform"><XCircle size={16} /></button>
+                                    </div>
+                                 );
+                              })}
+                              <button type="button" onClick={() => handleAddHealthEvent('medicine')} className="w-full py-2 border border-dashed border-blue-300 rounded-xl text-[9px] font-black text-blue-500 uppercase hover:bg-blue-50 transition-all">+ Agendar Medicamento</button>
                            </div>
                         </div>
                      </div>

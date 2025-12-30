@@ -147,16 +147,26 @@ export interface VaccineRecord {
   nextDose?: string;
 }
 
+export interface HealthEvent {
+  id: string;
+  type: 'consultation' | 'surgery' | 'medicine';
+  description: string;
+  date: string;
+  completed?: boolean;
+}
+
 export interface UserPet {
   id: string;
   ownerEmail: string;
   name: string;
   species: 'dog' | 'cat';
   breed: string;
+  birthDate?: string; // Nova data de nascimento
   age: string;
   weight: string;
   photoUrl: string;
   vaccines: VaccineRecord[];
+  healthEvents?: HealthEvent[]; // Novos agendamentos
   diseases: string;
   surgeries: string;
   medicines: string;
