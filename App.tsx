@@ -76,7 +76,11 @@ const App: React.FC = () => {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    localStorage.clear(); // Clear all local data
+    // Only clear auth data, keeping application data (pets, logs, etc.)
+    localStorage.removeItem('petmatch_user_email');
+    localStorage.removeItem('petmatch_user_role');
+    localStorage.removeItem('sb-access-token'); // If used directly
+    localStorage.removeItem('sb-refresh-token'); // If used directly
     setIsAuthenticated(false);
   };
 
