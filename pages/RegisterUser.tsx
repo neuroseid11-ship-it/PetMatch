@@ -77,7 +77,7 @@ const RegisterUser: React.FC = () => {
   };
 
   const handleCopyPix = () => {
-    navigator.clipboard.writeText("doe@petmatch.com.br");
+    navigator.clipboard.writeText("xxx");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };

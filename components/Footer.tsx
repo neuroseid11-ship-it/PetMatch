@@ -86,7 +86,7 @@ const Footer: React.FC = () => {
                             </div>
                             <div>
                                 <h4 className="text-sm font-black text-[#5d2e0a] uppercase">Contribuição PIX</h4>
-                                <p className="text-[10px] text-[#8b4513] font-bold">Chave: doe@petmatch.com.br</p>
+                                <p className="text-[10px] text-[#8b4513] font-bold">Chave: xxx</p>
                             </div>
                         </div>
 
