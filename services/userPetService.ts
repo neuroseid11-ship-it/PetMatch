@@ -47,7 +47,7 @@ export const userPetService = {
     const { data, error } = await supabase
       .from('user_pets')
       .select('*')
-      .eq('owner_email', email); // Assuming simple match is enough, case sensitive in DB usually
+      .ilike('owner_email', email); // Case-insensitive match
 
     if (error) {
       console.error('Error fetching user pets:', error);

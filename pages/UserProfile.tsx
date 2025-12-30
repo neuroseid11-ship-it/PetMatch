@@ -83,7 +83,7 @@ const UserProfile: React.FC = () => {
 
                   // Fetch adoption pets
                   const allAdoptionPets = await petService.getAll();
-                  setAdoptionPets(allAdoptionPets.filter(p => p.ownerEmail === profile.email));
+                  setAdoptionPets(allAdoptionPets.filter(p => p.ownerEmail?.toLowerCase() === profile.email?.toLowerCase()));
                }
             }
          } catch (error) {
