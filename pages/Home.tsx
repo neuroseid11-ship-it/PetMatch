@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   MapPin, Heart, ChevronRight, ChevronLeft, MessageSquare,
   X, Send, CheckCircle, ShieldCheck, Star, User, Camera, Calendar,
-  Clock, AlertTriangle, Search, Megaphone, ArrowRight
+  Clock, AlertTriangle, Megaphone, ArrowRight
 } from 'lucide-react';
 import { petService } from '../services/petService';
 import { eventService } from '../services/eventService';
@@ -229,12 +229,10 @@ const Home: React.FC = () => {
             <h2 className="text-3xl font-black text-[#5d2e0a] uppercase">Alerta Solidário</h2>
           </div>
           <div className="flex gap-3">
-            <button className="wood-panel px-6 py-3 rounded-2xl text-red-600 font-black text-xs border-red-600 border-2 hover:bg-red-50 flex items-center gap-2">
+            <Link to="/mapa?alert=lost" className="wood-panel px-6 py-3 rounded-2xl text-red-600 font-black text-xs border-red-600 border-2 hover:bg-red-50 flex items-center gap-2">
               <Megaphone size={16} /> PERDI MEU PET
-            </button>
-            <button className="grass-bg px-6 py-3 rounded-2xl text-white font-black text-xs border-b-4 border-[#3d7a22] flex items-center gap-2">
-              <Search size={16} /> VI UM PET NA RUA
-            </button>
+            </Link>
+
           </div>
         </div>
 

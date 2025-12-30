@@ -73,7 +73,10 @@ export const userPetService = {
         .from('user_pets')
         .update(dbPet)
         .eq('id', id);
-      if (error) console.error('Error updating user pet:', error);
+      if (error) {
+        console.error('Error updating user pet:', error);
+        throw error;
+      }
     } else {
       // Insert
       const newId = Math.random().toString(36).substr(2, 9);
@@ -81,7 +84,10 @@ export const userPetService = {
       const { error } = await supabase
         .from('user_pets')
         .insert(dbPet);
-      if (error) console.error('Error creating user pet:', error);
+      if (error) {
+        console.error('Error creating user pet:', error);
+        throw error;
+      }
     }
   },
 

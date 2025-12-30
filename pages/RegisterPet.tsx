@@ -93,37 +93,43 @@ const RegisterPet: React.FC = () => {
       return;
     }
 
-    const finalData = { ...formData };
-    if (finalData.responsibilityType === 'ong') {
-      finalData.shelter = '';
-    } else {
-      finalData.ongId = '';
-    }
+    try {
+      const finalData = { ...formData };
+      if (finalData.responsibilityType === 'ong') {
+        finalData.shelter = '';
+      } else {
+        finalData.ongId = '';
+      }
 
-    // Await asynchronous service calls
-    // Await asynchronous service calls
-    if (isEditing && id) {
-      await petService.update(id, finalData);
-      await logService.add({
-        action: 'Atualização',
-        module: 'pets',
-        details: `Pet ${finalData.name} atualizado.`,
-        severity: 'info'
-      });
-    } else {
-      await petService.register(finalData);
-      await logService.add({
-        action: 'Cadastro',
-        module: 'pets',
-        details: `Novo pet ${finalData.name} cadastrado para ${formData.adoptionType === 'adoption' ? 'adoção' : 'apadrinhamento'}.`,
-        severity: 'info'
-      });
-    }
+      // Await asynchronous service calls
+      if (isEditing && id) {
+        await petService.update(id, finalData);
+        await logService.add({
+          action: 'Atualização',
+          module: 'pets',
+          details: `Pet ${finalData.name} atualizado.`,
+          severity: 'info'
+        });
+      } else {
+        await petService.register(finalData);
+        await logService.add({
+          action: 'Cadastro',
+          module: 'pets',
+          details: `Novo pet ${finalData.name} cadastrado para ${formData.adoptionType === 'adoption' ? 'adoção' : 'apadrinhamento'}.`,
+          severity: 'info'
+        });
+      }
 
-    if (formData.adoptionType === 'adoption') {
-      navigate('/adocao');
-    } else {
-      navigate('/apadrinhar');
+      alert('Pet salvo com sucesso!');
+
+      if (formData.adoptionType === 'adoption') {
+        navigate('/adocao');
+      } else {
+        navigate('/apadrinhar');
+      }
+    } catch (error) {
+      console.error("Erro ao salvar pet:", error);
+      alert("Ocorreu um erro ao salvar o pet. Verifique o console para mais detalhes.");
     }
   };
 

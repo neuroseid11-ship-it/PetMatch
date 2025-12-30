@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Search, MapPin, Home, Building2, AlertTriangle,
   Filter, X, Camera, CheckCircle, Heart, Calendar,
@@ -92,9 +93,14 @@ const SolidarityMap: React.FC = () => {
   const [gallerySearch, setGallerySearch] = useState('');
   const [locationSearch, setLocationSearch] = useState('');
 
+  const [searchParams] = useSearchParams();
+
   useEffect(() => {
     loadMarkers();
-  }, []);
+    if (searchParams.get('alert') === 'lost' || searchParams.get('alert') === 'found') {
+      setIsLostPetModalOpen(true);
+    }
+  }, [searchParams]);
 
   const loadMarkers = async () => {
     try {
@@ -495,7 +501,9 @@ const SolidarityMap: React.FC = () => {
               </div>
             ) : (
               <form onSubmit={handleLostPetSubmit} className="space-y-6">
-                <h2 className="text-3xl font-black text-[#5d2e0a] text-center uppercase tracking-tighter">ANIMAL PERDIDO</h2>
+                <h2 className="text-3xl font-black text-[#5d2e0a] text-center uppercase tracking-tighter">
+                  {searchParams.get('alert') === 'found' ? 'ENCONTREI UM PET' : 'ANIMAL PERDIDO'}
+                </h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Foto do Pet */}
@@ -518,13 +526,13 @@ const SolidarityMap: React.FC = () => {
                       value={lostPetForm.locationDesc}
                       onChange={e => setLostPetForm({ ...lostPetForm, locationDesc: e.target.value })}
                       className="w-full wood-inner p-3.5 text-xs border-2 border-[#c9a688]/40 outline-none rounded-2xl placeholder:text-[#8b4513]/40"
-                      placeholder="Onde foi visto?"
+                      placeholder={searchParams.get('alert') === 'found' ? "Onde você o viu?" : "Onde foi visto pela última vez?"}
                     />
                     <input
                       value={lostPetForm.respondsToName}
                       onChange={e => setLostPetForm({ ...lostPetForm, respondsToName: e.target.value })}
                       className="w-full wood-inner p-3.5 text-xs border-2 border-[#c9a688]/40 outline-none rounded-2xl placeholder:text-[#8b4513]/40"
-                      placeholder="Atende pelo nome: (Ex: Totó)"
+                      placeholder={searchParams.get('alert') === 'found' ? "Sabe o nome? (Opcional)" : "Atende pelo nome: (Ex: Totó)"}
                     />
                     <input
                       value={lostPetForm.usingItem}
@@ -567,7 +575,9 @@ const SolidarityMap: React.FC = () => {
                 >
                   <div className="absolute inset-y-0 left-[20%] border-l border-white/20 border-dashed"></div>
                   <div className="absolute inset-y-0 right-[20%] border-l border-white/20 border-dashed"></div>
-                  <span className="relative z-10">Publicar Alerta Solidário</span>
+                  <span className="relative z-10">
+                    {searchParams.get('alert') === 'found' ? 'Publicar Pet Encontrado' : 'Publicar Alerta Solidário'}
+                  </span>
                 </button>
               </form>
             )}
