@@ -96,7 +96,7 @@ const RegisterPet: React.FC = () => {
     // Await asynchronous service calls
     if (isEditing && id) {
       await petService.update(id, finalData);
-      logService.add({
+      await logService.add({
         action: 'Atualização',
         module: 'pets',
         details: `Pet ${finalData.name} atualizado.`,
@@ -104,7 +104,7 @@ const RegisterPet: React.FC = () => {
       });
     } else {
       await petService.register(finalData);
-      logService.add({
+      await logService.add({
         action: 'Cadastro',
         module: 'pets',
         details: `Novo pet ${finalData.name} cadastrado para ${formData.adoptionType === 'adoption' ? 'adoção' : 'apadrinhamento'}.`,

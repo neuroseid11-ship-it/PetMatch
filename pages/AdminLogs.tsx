@@ -26,13 +26,13 @@ const AdminLogs: React.FC = () => {
     loadLogs();
   }, [navigate]);
 
-  const loadLogs = () => {
-    setLogs(logService.getAll());
+  const loadLogs = async () => {
+    setLogs(await logService.getAll());
   };
 
-  const handleClearLogs = () => {
+  const handleClearLogs = async () => {
     if (window.confirm("Deseja apagar TODO o histórico de logs definitivamente?")) {
-      logService.clear();
+      await logService.clear();
       loadLogs();
     }
   };

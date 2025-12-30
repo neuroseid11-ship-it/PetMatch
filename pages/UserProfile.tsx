@@ -289,7 +289,7 @@ const UserProfile: React.FC = () => {
       setPetFormData(prev => ({ ...prev, healthEvents: events }));
    };
 
-   const handleSavePet = (e: React.FormEvent) => {
+   const handleSavePet = async (e: React.FormEvent) => {
       e.preventDefault();
       console.log('Tentando salvar pet...', petFormData);
 
@@ -303,9 +303,9 @@ const UserProfile: React.FC = () => {
          const petToSave = { ...petFormData, ownerEmail: user.email };
          console.log('Dados finais para salvar:', petToSave);
 
-         userPetService.save(petToSave, editingPet?.id);
+         await userPetService.save(petToSave, editingPet?.id);
 
-         const updatedPets = userPetService.getByOwner(user.email);
+         const updatedPets = await userPetService.getByOwner(user.email);
          setUserPets(updatedPets);
 
          setIsPetModalOpen(false);
@@ -316,10 +316,10 @@ const UserProfile: React.FC = () => {
       }
    };
 
-   const handleDeletePet = (id: string) => {
+   const handleDeletePet = async (id: string) => {
       if (window.confirm('Excluir prontuário permanentemente?')) {
-         userPetService.delete(id);
-         if (user) setUserPets(userPetService.getByOwner(user.email));
+         await userPetService.delete(id);
+         if (user) setUserPets(await userPetService.getByOwner(user.email));
       }
    };
 

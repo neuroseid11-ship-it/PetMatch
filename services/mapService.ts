@@ -20,23 +20,20 @@ export const mapService = {
       type: point.type,
       name: point.title,
       description: point.description,
-      // Convert lat/lng back to percentage/top/left logic or handle in component
-      // Ideally we should switch the frontend to use lat/lng. 
-      // For now we will return raw lat/lng and handle display in the new component.
       lat: point.latitude,
       lng: point.longitude,
-      // Keep legacy fields for compatibility if needed, but they won't be used by Leaflet
-      top: '0%',
-      left: '0%',
+      top: point.top_pos || '50%',
+      left: point.left_pos || '50%',
       imageUrl: point.image_url,
       isAlert: point.is_alert
     }));
   },
 
   save: async (point: any): Promise<any> => {
+    // If no user, maybe allow anonymous for now or require auth?
+    // AdminDashboard usually requires auth.
+    // We can try to get user, if not found, maybe just insert without user_id?
     const { data: { user } } = await supabase.auth.getUser();
-
-    if (!user) throw new Error('User must be logged in to add points');
 
     const dbPoint = {
       type: point.type,
@@ -44,9 +41,11 @@ export const mapService = {
       description: point.description,
       latitude: point.lat,
       longitude: point.lng,
+      top_pos: point.top,
+      left_pos: point.left,
       image_url: point.imageUrl,
       is_alert: point.isAlert || false,
-      user_id: user.id
+      user_id: user?.id
     };
 
     const { data, error } = await supabase
@@ -55,7 +54,10 @@ export const mapService = {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error saving map point:', error);
+      throw error;
+    }
     return data;
   },
 

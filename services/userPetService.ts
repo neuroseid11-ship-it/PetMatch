@@ -1,60 +1,95 @@
 
 import { UserPet } from '../types';
+import { supabase } from '../lib/supabaseClient';
 
-const STORAGE_KEY = 'petmatch_user_pets';
+const fromDB = (row: any): UserPet => ({
+  id: row.id,
+  ownerEmail: row.owner_email,
+  name: row.name,
+  species: row.species,
+  breed: row.breed,
+  birthDate: row.birth_date,
+  age: row.age,
+  weight: row.weight,
+  photoUrl: row.photo_url,
+  vaccines: row.vaccines || [],
+  healthEvents: row.health_events || [],
+  diseases: row.diseases,
+  surgeries: row.surgeries,
+  medicines: row.medicines,
+  consultations: row.consultations,
+  grooming: row.grooming,
+  chipNumber: row.chip_number
+});
+
+const toDB = (pet: Partial<UserPet>) => {
+  const dbPet: any = { ...pet };
+  if (pet.ownerEmail) dbPet.owner_email = pet.ownerEmail;
+  if (pet.birthDate) dbPet.birth_date = pet.birthDate;
+  if (pet.photoUrl) dbPet.photo_url = pet.photoUrl;
+  if (pet.healthEvents) dbPet.health_events = pet.healthEvents;
+  if (pet.chipNumber) dbPet.chip_number = pet.chipNumber;
+
+  // Remove camelCase
+  delete dbPet.ownerEmail;
+  delete dbPet.birthDate;
+  delete dbPet.photoUrl;
+  delete dbPet.healthEvents;
+  delete dbPet.chipNumber;
+
+  return dbPet;
+};
 
 export const userPetService = {
-  getByOwner: (email: string): UserPet[] => {
-    const data = localStorage.getItem(STORAGE_KEY);
-    let allPets: UserPet[] = [];
-    try {
-      allPets = data ? JSON.parse(data) : [];
-      if (!Array.isArray(allPets)) allPets = [];
-    } catch (e) {
-      console.error('Error parsing pet data:', e);
-      allPets = [];
-    }
+  getByOwner: async (email: string): Promise<UserPet[]> => {
     if (!email) return [];
-    return allPets.filter(p => p.ownerEmail && p.ownerEmail.toLowerCase() === email.toLowerCase());
+
+    const { data, error } = await supabase
+      .from('user_pets')
+      .select('*')
+      .eq('owner_email', email); // Assuming simple match is enough, case sensitive in DB usually
+
+    if (error) {
+      console.error('Error fetching user pets:', error);
+      return [];
+    }
+    return data.map(fromDB);
   },
 
-  save: (pet: Omit<UserPet, 'id'>, id?: string): UserPet => {
-    const data = localStorage.getItem(STORAGE_KEY);
+  getAll: async (): Promise<UserPet[]> => {
+    // Kept for compatibility if used elsewhere, though usually scoped by owner
+    const { data, error } = await supabase.from('user_pets').select('*');
+    if (error) return [];
+    return data.map(fromDB);
+  },
 
-    let allPets: UserPet[] = [];
-    try {
-      allPets = data ? JSON.parse(data) : [];
-      if (!Array.isArray(allPets)) allPets = [];
-    } catch (e) {
-      console.error('Error parsing pet data in save:', e);
-      allPets = [];
-    }
-    let savedPet: UserPet;
+  save: async (pet: UserPet, id?: string): Promise<void> => {
+    const dbPet = toDB(pet);
 
     if (id) {
-      savedPet = { ...pet, id };
-      allPets = allPets.map(p => p.id === id ? savedPet : p);
+      // Update
+      delete dbPet.id; // Don't update ID into itself if present
+      const { error } = await supabase
+        .from('user_pets')
+        .update(dbPet)
+        .eq('id', id);
+      if (error) console.error('Error updating user pet:', error);
     } else {
-      savedPet = { ...pet, id: Math.random().toString(36).substr(2, 9) };
-      allPets.push(savedPet);
+      // Insert
+      const newId = Math.random().toString(36).substr(2, 9);
+      dbPet.id = newId;
+      const { error } = await supabase
+        .from('user_pets')
+        .insert(dbPet);
+      if (error) console.error('Error creating user pet:', error);
     }
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(allPets));
-    return savedPet;
   },
 
-  delete: (id: string): void => {
-    const data = localStorage.getItem(STORAGE_KEY);
-    if (!data) return;
-    let allPets: UserPet[] = [];
-    try {
-      allPets = JSON.parse(data);
-      if (!Array.isArray(allPets)) return;
-    } catch (e) {
-      console.error('Error parsing pet data in delete:', e);
-      return;
-    }
-    const filtered = allPets.filter(p => p.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  delete: async (id: string): Promise<void> => {
+    const { error } = await supabase
+      .from('user_pets')
+      .delete()
+      .eq('id', id);
+    if (error) console.error('Error deleting user pet:', error);
   }
 };
