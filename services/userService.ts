@@ -112,7 +112,7 @@ export const userService = {
         full_name: user.name,
         user_type: user.type,
         document_number: user.documentNumber,
-        status: user.type === 'partner' ? 'approved' : 'pending', // Auto-approve partners for now
+        status: 'pending',
         coins: 100
       })
       .select()
