@@ -36,14 +36,24 @@ const AdminUsers: React.FC = () => {
 
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Excluir permanentemente o registro de ${name}?`)) {
-      await userService.delete(id);
-      loadUsers();
+      try {
+        await userService.delete(id);
+        await loadUsers();
+      } catch (error) {
+        console.error("Failed to delete user:", error);
+        alert("Erro ao excluir usuário. Verifique se você tem permissão ou se o usuário ainda existe.");
+      }
     }
   };
 
   const handleUpdateStatus = async (id: string, status: UserStatus) => {
-    await userService.update(id, { status });
-    loadUsers();
+    try {
+      await userService.update(id, { status });
+      await loadUsers();
+    } catch (error) {
+      console.error("Failed to update status:", error);
+      alert("Erro ao atualizar status. O usuário pode ter sido removido ou você não tem permissão.");
+    }
   };
 
   const filteredUsers = users.filter(user =>
@@ -96,6 +106,13 @@ const AdminUsers: React.FC = () => {
               <p className="text-[10px] font-bold text-[#8b4513] uppercase tracking-widest">{volunteers.length} membros cadastrados</p>
             </div>
           </div>
+          <button
+            onClick={loadUsers}
+            className="p-2 wood-inner text-[#5d2e0a] hover:bg-[#d2b48c] border border-[#c9a688] rounded-xl transition-all"
+            title="Atualizar Lista"
+          >
+            <Database size={18} className="animate-pulse" />
+          </button>
         </div>
 
         <div className="wood-panel rounded-[32px] border-2 border-[#c9a688] overflow-hidden shadow-xl">
@@ -175,7 +192,7 @@ const AdminUsers: React.FC = () => {
           </div>
         </div>
       </section>
-    </div>
+    </div >
   );
 };
 
