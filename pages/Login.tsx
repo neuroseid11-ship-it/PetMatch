@@ -41,14 +41,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
     navigate('/');
   };
 
-  const handleUserDirectAccess = () => {
-    localStorage.setItem('petmatch_auth', 'true');
-    localStorage.setItem('petmatch_user_email', 'visitante@petmatch.com.br');
-    localStorage.setItem('petmatch_user_role', 'user');
-    onLogin();
-    navigate('/');
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="wood-panel w-full max-w-md p-8 rounded-[40px] border-4 border-[#c9a688] shadow-2xl relative">
@@ -101,26 +93,6 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           >
             Não tem uma conta? <span className="underline decoration-2">Criar conta agora</span>
           </button>
-        </div>
-
-        <div className="mt-8 pt-6 border-t-2 border-[#55a630]/20 space-y-3">
-          <p className="text-center text-[9px] font-black text-[#55a630] uppercase tracking-widest">Painel de Testes</p>
-
-          <div className="grid grid-cols-1 gap-3">
-            <button
-              onClick={handleDirectAccess}
-              className="w-full grass-bg py-3 rounded-2xl text-white font-black text-xs shadow-lg border-b-4 border-[#3d7a22] flex items-center justify-center gap-2"
-            >
-              <ShieldCheck size={16} /> ENTRAR COMO ADMIN (DIRETO)
-            </button>
-
-            <button
-              onClick={handleUserDirectAccess}
-              className="w-full wood-panel bg-[#d2b48c] py-3 rounded-2xl text-[#5d2e0a] font-black text-xs shadow-lg border-b-4 border-[#b38b6d] flex items-center justify-center gap-2"
-            >
-              <User size={16} /> ENTRAR COMO USUÁRIO (TESTE)
-            </button>
-          </div>
         </div>
       </div>
     </div>

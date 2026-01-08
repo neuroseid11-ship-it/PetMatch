@@ -197,7 +197,7 @@ export interface GarageItem {
   createdAt: string;
 }
 
-export type UserType = 'volunteer' | 'partner';
+export type UserType = 'volunteer' | 'partner' | 'admin';
 export type UserStatus = 'pending' | 'approved' | 'rejected';
 
 export interface PlatformUser {
