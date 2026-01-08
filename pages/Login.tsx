@@ -19,8 +19,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === 'admin@petmatch.com.br') {
-      handleDirectAccess();
+    if (email === 'neuroseid@gmail.com') {
+      if (password === '000000') {
+        handleDirectAccess();
+      } else {
+        setStatusMessage({ type: 'error', text: 'Senha incorreta para administrador' });
+      }
     } else {
       // Simulação simples para outros e-mails
       localStorage.setItem('petmatch_user_email', email);
@@ -31,7 +35,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const handleDirectAccess = () => {
     localStorage.setItem('petmatch_auth', 'true');
-    localStorage.setItem('petmatch_user_email', 'admin@petmatch.com.br');
+    localStorage.setItem('petmatch_user_email', 'neuroseid@gmail.com');
     localStorage.setItem('petmatch_user_role', 'admin');
     onLogin();
     navigate('/');
