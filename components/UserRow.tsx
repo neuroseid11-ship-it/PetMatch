@@ -23,12 +23,14 @@ const UserRow: React.FC<UserRowProps> = ({ user, onDelete, onUpdateStatus, onVie
             </div>
         </td>
         <td className="px-6 py-4">
-            <span className="text-[10px] font-bold text-[#8b4513] bg-[#f1dfcf] px-3 py-1 rounded-full border border-[#c9a688]">{user.documentNumber}</span>
+            <span className={`text-[10px] font-bold px-3 py-1 rounded-full border ${user.documentNumber ? 'text-[#8b4513] bg-[#f1dfcf] border-[#c9a688]' : 'text-gray-400 bg-gray-100 border-gray-200'}`}>
+                {user.documentNumber || '---'}
+            </span>
         </td>
         <td className="px-6 py-4">
             <span className={`text-[8px] font-black uppercase px-2.5 py-1 rounded-full border shadow-sm ${user.status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-                    user.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-200 animate-pulse' :
-                        'bg-red-50 text-red-600 border-red-200'
+                user.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-200 animate-pulse' :
+                    'bg-red-50 text-red-600 border-red-200'
                 }`}>
                 {user.status}
             </span>
