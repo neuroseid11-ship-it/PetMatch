@@ -7,7 +7,7 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function createAdmin() {
-    const email = 'neuroseid@gmail.com';
+    const email = 'neuroseid11@gmail.com';
     console.log(`Tentando registrar ${email} com senha "000000"...`);
 
     const { data, error } = await supabase.auth.signUp({

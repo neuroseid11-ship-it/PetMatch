@@ -19,7 +19,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (email === 'neuroseid@gmail.com') {
+    if (email === 'neuroseid11@gmail.com') {
       if (password === '000000') {
         handleDirectAccess();
       } else {
@@ -35,7 +35,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 
   const handleDirectAccess = () => {
     localStorage.setItem('petmatch_auth', 'true');
-    localStorage.setItem('petmatch_user_email', 'neuroseid@gmail.com');
+    localStorage.setItem('petmatch_user_email', 'neuroseid11@gmail.com');
     localStorage.setItem('petmatch_user_role', 'admin');
     onLogin();
     navigate('/');

@@ -65,7 +65,6 @@ const UserProfile: React.FC = () => {
 
                if (!profile && targetId === session.user.id) {
                   // First access: Create placeholder profile
-                  console.log('Perfil não encontrado, criando perfil inicial...');
                   await profileService.createProfile(session.user.id, session.user.email!, session.user.user_metadata.full_name);
                   profile = await profileService.getProfile(session.user.id);
                   // Should open edit modal automatically
@@ -295,7 +294,6 @@ const UserProfile: React.FC = () => {
 
    const handleSavePet = async (e: React.FormEvent) => {
       e.preventDefault();
-      console.log('Tentando salvar pet...', petFormData);
 
       if (!user) {
          console.error('Usuário não encontrado ao tentar salvar.');
@@ -305,7 +303,6 @@ const UserProfile: React.FC = () => {
 
       try {
          const petToSave = { ...petFormData, ownerEmail: user.email };
-         console.log('Dados finais para salvar:', petToSave);
 
          await userPetService.save(petToSave, editingPet?.id);
 
