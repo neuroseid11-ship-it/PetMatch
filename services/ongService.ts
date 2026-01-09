@@ -1,42 +1,108 @@
 
 import { ONG } from '../types';
 
-const STORAGE_KEY = 'petmatch_ongs';
+import { supabase } from '../lib/supabaseClient';
 
 export const ongService = {
-  getAll: (): ONG[] => {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-  },
+  getAll: async (): Promise<ONG[]> => {
+    const { data, error } = await supabase
+      .from('ongs')
+      .select('*')
+      .order('created_at', { ascending: false });
 
-  getById: (id: string): ONG | undefined => {
-    const ongs = ongService.getAll();
-    return ongs.find(o => o.id === id);
-  },
-
-  save: (ong: Omit<ONG, 'id' | 'createdAt'>, id?: string): ONG => {
-    const ongs = ongService.getAll();
-    let savedONG: ONG;
-
-    if (id) {
-      const existing = ongs.find(o => o.id === id);
-      savedONG = { ...ong, id, createdAt: existing?.createdAt || new Date().toISOString() };
-      const updated = ongs.map(o => o.id === id ? savedONG : o);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    } else {
-      savedONG = { 
-        ...ong, 
-        id: Math.random().toString(36).substr(2, 9),
-        createdAt: new Date().toISOString() 
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify([...ongs, savedONG]));
+    if (error) {
+      console.error('Error fetching ONGs:', error);
+      return [];
     }
-    return savedONG;
+
+    return data.map(o => ({
+      id: o.id,
+      name: o.name,
+      description: o.description,
+      location: o.location,
+      top: o.top_pos,
+      left: o.left_pos,
+      imageUrl: o.image_url,
+      phone: o.phone,
+      email: o.email,
+      createdAt: o.created_at
+    }));
   },
 
-  delete: (id: string): void => {
-    const ongs = ongService.getAll();
-    const filtered = ongs.filter(o => o.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  getById: async (id: string): Promise<ONG | undefined> => {
+    const { data, error } = await supabase
+      .from('ongs')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) return undefined;
+
+    return {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      location: data.location,
+      top: data.top_pos,
+      left: data.left_pos,
+      imageUrl: data.image_url,
+      phone: data.phone,
+      email: data.email,
+      createdAt: data.created_at
+    };
+  },
+
+  save: async (ong: Omit<ONG, 'id' | 'createdAt'>, id?: string): Promise<ONG> => {
+    const dbOng = {
+      name: ong.name,
+      description: ong.description,
+      location: ong.location,
+      top_pos: ong.top,
+      left_pos: ong.left,
+      image_url: ong.imageUrl,
+      phone: ong.phone,
+      email: ong.email
+    };
+
+    let result;
+    if (id) {
+      result = await supabase
+        .from('ongs')
+        .update(dbOng)
+        .eq('id', id)
+        .select()
+        .single();
+    } else {
+      result = await supabase
+        .from('ongs')
+        .insert(dbOng)
+        .select()
+        .single();
+    }
+
+    if (result.error) throw result.error;
+
+    const data = result.data;
+    return {
+      id: data.id,
+      name: data.name,
+      description: data.description,
+      location: data.location,
+      top: data.top_pos,
+      left: data.left_pos,
+      imageUrl: data.image_url,
+      phone: data.phone,
+      email: data.email,
+      createdAt: data.created_at
+    };
+  },
+
+  delete: async (id: string): Promise<void> => {
+    const { error } = await supabase
+      .from('ongs')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
   }
 };

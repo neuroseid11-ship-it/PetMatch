@@ -30,8 +30,13 @@ const AdminUsers: React.FC = () => {
   }, [navigate]);
 
   const loadUsers = async () => {
-    const allUsers = await userService.getAll();
-    setUsers(allUsers);
+    try {
+      const allUsers = await userService.getAll();
+      setUsers(allUsers);
+    } catch (error: any) {
+      console.error("Error loading users:", error);
+      alert(`Erro ao carregar usuários: ${error.message || 'Erro desconhecido'}`);
+    }
   };
 
   const handleDelete = async (id: string, name: string) => {

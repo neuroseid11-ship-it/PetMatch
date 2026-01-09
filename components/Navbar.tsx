@@ -111,6 +111,7 @@ const Navbar: React.FC<NavbarProps> = ({ onLogout }) => {
                 { label: 'Parceiros', path: '/admin/parceiros', icon: <Building2 size={14} /> },
                 { label: 'Usuários', path: '/admin/users', icon: <Users size={14} /> },
                 { label: 'Central de Mensagens', path: '/admin/messages', icon: <Inbox size={14} /> },
+                { label: 'Gamificação', path: '/admin/missions', icon: <Gift size={14} /> },
                 { label: 'Logs de Atividade', path: '/admin/logs', icon: <History size={14} /> }
             ]
         }] : [])

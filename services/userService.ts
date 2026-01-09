@@ -10,7 +10,7 @@ export const userService = {
 
     if (error) {
       console.error('Error fetching users:', error);
-      return [];
+      throw error;
     }
 
     return data.map(profile => ({

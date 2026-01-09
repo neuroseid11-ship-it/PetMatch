@@ -16,6 +16,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/AdminUsers';
 import AdminMessages from './pages/AdminMessages';
 import AdminLogs from './pages/AdminLogs';
+import AdminMissions from './pages/AdminMissions';
 import UserMessages from './pages/UserMessages';
 import MuralFeed from './pages/MuralFeed';
 import EventsCalendar from './pages/EventsCalendar';
@@ -136,6 +137,7 @@ const App: React.FC = () => {
                   <Route path="/admin/users" element={<AdminUsers />} />
                   <Route path="/admin/messages" element={<AdminMessages />} />
                   <Route path="/admin/logs" element={<AdminLogs />} />
+                  <Route path="/admin/missions" element={<AdminMissions />} />
                   <Route path="/admin/loja" element={<AdminStore />} />
                   <Route path="/faq" element={<FAQ />} />
                   <Route path="*" element={<Navigate to="/" replace />} />
