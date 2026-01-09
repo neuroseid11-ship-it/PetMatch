@@ -102,8 +102,18 @@ const AdminMissions: React.FC = () => {
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
+        // Sanitize payload
+        const payload = {
+            ...formData,
+            xp_reward: Number(formData.xp_reward) || 0,
+            coin_reward: Number(formData.coin_reward) || 0,
+            action_link: formData.action_link || undefined,
+            icon: formData.icon || undefined
+        };
+
         try {
-            await missionService.save(formData, editingId || undefined);
+            // @ts-ignore - Supabase handles missing fields that are not in DB
+            await missionService.save(payload, editingId || undefined);
 
             await logService.add({
                 action: editingId ? 'ATUALIZAÇÃO' : 'CADASTRO',
@@ -114,10 +124,11 @@ const AdminMissions: React.FC = () => {
 
             await loadData();
             setIsModalOpen(false);
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error saving mission:", error);
-            alert("Erro ao salvar missão");
+            alert(`Erro ao salvar missão: ${error.message || 'Erro desconhecido'}`);
         }
+
     };
 
     const handleDelete = async (id: string) => {
