@@ -39,10 +39,10 @@ const AdminMissions: React.FC = () => {
     };
 
     const loadData = async () => {
+
+
         try {
-            console.log("Loading missions...");
             const missionsData = await missionService.getAll();
-            console.log("Missions loaded:", missionsData);
             setMissions(missionsData);
 
             if (activeTab === 'ranking') {
