@@ -48,8 +48,13 @@ const AdminStore: React.FC = () => {
     loadProducts();
   }, [navigate]);
 
-  const loadProducts = () => {
-    setProducts(productService.getAll());
+  const loadProducts = async () => {
+    try {
+      const data = await productService.getAll();
+      setProducts(data);
+    } catch (error) {
+      console.error("Error loading products:", error);
+    }
   };
 
   const handleOpenModal = (product?: Product) => {
@@ -88,21 +93,31 @@ const AdminStore: React.FC = () => {
     setFormData(prev => ({ ...prev, imageUrl: '' }));
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.imageUrl) {
       alert("Por favor, adicione uma imagem para o produto.");
       return;
     }
-    productService.save(formData, editingId || undefined);
-    loadProducts();
-    setIsModalOpen(false);
+    try {
+      await productService.save(formData, editingId || undefined);
+      await loadProducts();
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error saving product:", error);
+      alert("Erro ao salvar produto");
+    }
   };
 
-  const handleDelete = (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Tem certeza que deseja remover "${name}" da loja?`)) {
-      productService.delete(id);
-      loadProducts();
+      try {
+        await productService.delete(id);
+        await loadProducts();
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        alert("Erro ao remover produto");
+      }
     }
   };
 
@@ -202,8 +217,8 @@ const AdminStore: React.FC = () => {
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id as any)}
                 className={`flex-shrink-0 px-5 py-3 rounded-2xl border-2 transition-all flex items-center gap-3 shadow-md ${activeCategory === cat.id
-                    ? 'grass-bg border-[#3d7a22] text-white'
-                    : 'wood-panel border-[#c9a688] text-[#5d2e0a] hover:bg-[#f1dfcf]'
+                  ? 'grass-bg border-[#3d7a22] text-white'
+                  : 'wood-panel border-[#c9a688] text-[#5d2e0a] hover:bg-[#f1dfcf]'
                   }`}
               >
                 <Tag size={14} className={activeCategory === cat.id ? 'text-white' : 'text-[#8b4513]'} />

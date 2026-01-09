@@ -13,15 +13,20 @@ export interface Mission {
   id: string;
   title: string;
   description: string;
-  reward: number;
+  reward?: number; // Deprecated, keep for legacy if needed, else remove
+  xp_reward: number;
+  coin_reward: number;
   completed: boolean;
-  type: 'share' | 'read' | 'checkin';
+  type: 'share' | 'read' | 'checkin' | 'daily' | 'one_time';
+  action_link?: string;
+  icon?: string;
 }
 
 export interface Guardian {
+  id?: string; // Optional for mock data, required for real
   rank: number;
   name: string;
-  xp: string;
+  xp: string; // Formatting like '5.2k'
   avatar: string;
 }
 
