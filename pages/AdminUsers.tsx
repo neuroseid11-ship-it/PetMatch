@@ -192,6 +192,51 @@ const AdminUsers: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* BLOCO 3: OUTROS USUÁRIOS (ADMINS E DIVERSOS) */}
+      <section className="space-y-4">
+        <div className="flex items-center justify-between px-2">
+          <div className="flex items-center gap-3">
+            <div className="bg-[#5d2e0a] p-2 rounded-xl text-white shadow-md">
+              <ShieldCheck size={20} />
+            </div>
+            <div>
+              <h2 className="text-2xl font-black text-[#5d2e0a] leading-tight">Administradores e Outros</h2>
+              <p className="text-[10px] font-bold text-[#8b4513] uppercase tracking-widest">{filteredUsers.filter(u => u.type !== 'volunteer' && u.type !== 'partner').length} usuários</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="wood-panel rounded-[32px] border-2 border-[#c9a688] overflow-hidden shadow-xl">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-[#b38b6d] border-b-2 border-[#8b6b4d]">
+                <tr className="text-[10px] font-black text-[#fdf6e3] uppercase tracking-widest">
+                  <th className="px-6 py-4">Usuário</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4 text-center">Gestão</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#c9a688] text-[#5d2e0a]">
+                {filteredUsers.filter(u => u.type !== 'volunteer' && u.type !== 'partner').map(user => (
+                  <UserRow
+                    key={user.id}
+                    user={user}
+                    onDelete={handleDelete}
+                    onUpdateStatus={handleUpdateStatus}
+                    onViewProfile={() => navigate(`/perfil/${user.id}`)}
+                  />
+                ))}
+                {filteredUsers.filter(u => u.type !== 'volunteer' && u.type !== 'partner').length === 0 && (
+                  <tr>
+                    <td colSpan={3} className="px-6 py-12 text-center opacity-40 italic text-sm font-bold">Nenhum outro usuário encontrado.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
     </div >
   );
 };
