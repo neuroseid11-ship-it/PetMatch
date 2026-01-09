@@ -116,6 +116,8 @@ export interface RegisteredPet {
   type: 'dog' | 'cat';
   breed: string;
   location: string;
+  city?: string;
+  neighborhood?: string;
   images: string[];
   personality: string;
   personalityDesc?: string;

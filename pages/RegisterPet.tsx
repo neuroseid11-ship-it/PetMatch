@@ -25,6 +25,8 @@ const RegisterPet: React.FC = () => {
     type: 'dog',
     breed: '',
     location: '',
+    city: '',
+    neighborhood: '',
     age: '',
     gender: 'Macho',
     personality: '',
@@ -52,7 +54,7 @@ const RegisterPet: React.FC = () => {
   });
 
   useEffect(() => {
-    setOngs(ongService.getAll());
+    ongService.getAll().then(data => setOngs(data));
 
     // Get current user email
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -263,9 +265,44 @@ const RegisterPet: React.FC = () => {
                     <input value={formData.chipNumber} onChange={e => setFormData({ ...formData, chipNumber: e.target.value })} className="w-full wood-inner pl-12 pr-4 py-4 text-sm border-2 border-[#c9a688] outline-none font-bold focus:ring-4 focus:ring-[#55a630]/10" placeholder="Ex: 123.456.789" />
                   </div>
                 </div>
-                <div className="md:col-span-2 space-y-1.5">
-                  <label className="text-[10px] font-black text-[#8b4513] uppercase ml-4">Localização (Cidade/DF)</label>
-                  <input required value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} className="w-full wood-inner p-4 text-sm border-2 border-[#c9a688] outline-none font-bold focus:ring-4 focus:ring-[#55a630]/10" placeholder="Ex: Asa Sul, Taguatinga..." />
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-[#8b4513] uppercase ml-4">Cidade (DF)</label>
+                  <select
+                    required
+                    value={formData.city || ''}
+                    onChange={e => setFormData({
+                      ...formData,
+                      city: e.target.value,
+                      location: `${e.target.value}${formData.neighborhood ? ` - ${formData.neighborhood}` : ''}`
+                    })}
+                    className="w-full wood-inner p-4 text-sm border-2 border-[#c9a688] outline-none font-bold transition-all"
+                  >
+                    <option value="">Selecione...</option>
+                    <option value="Brasília">Brasília</option>
+                    <option value="Taguatinga">Taguatinga</option>
+                    <option value="Ceilândia">Ceilândia</option>
+                    <option value="Águas Claras">Águas Claras</option>
+                    <option value="Guará">Guará</option>
+                    <option value="Gama">Gama</option>
+                    <option value="Sobradinho">Sobradinho</option>
+                    <option value="Planaltina">Planaltina</option>
+                    <option value="Samambaia">Samambaia</option>
+                    <option value="Santa Maria">Santa Maria</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-[#8b4513] uppercase ml-4">Bairro</label>
+                  <input
+                    required
+                    value={formData.neighborhood || ''}
+                    onChange={e => setFormData({
+                      ...formData,
+                      neighborhood: e.target.value,
+                      location: `${formData.city ? `${formData.city} - ` : ''}${e.target.value}`
+                    })}
+                    className="w-full wood-inner p-4 text-sm border-2 border-[#c9a688] outline-none font-bold focus:ring-4 focus:ring-[#55a630]/10"
+                    placeholder="Ex: Asa Sul, QNJ..."
+                  />
                 </div>
               </div>
             </div>

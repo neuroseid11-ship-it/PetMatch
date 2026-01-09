@@ -9,6 +9,8 @@ const fromDB = (row: any): RegisteredPet => ({
   type: row.type,
   breed: row.breed,
   location: row.location,
+  city: row.city,
+  neighborhood: row.neighborhood,
   images: row.images || [],
   personality: row.personality,
   personalityDesc: row.personality_desc,
@@ -46,6 +48,8 @@ const toDB = (pet: Partial<RegisteredPet>) => {
   if (pet.residenceSuitability) dbPet.residence_suitability = pet.residenceSuitability;
   if (pet.energyLevel) dbPet.energy_level = pet.energyLevel;
   if (pet.chipNumber) dbPet.chip_number = pet.chipNumber;
+  if (pet.city) dbPet.city = pet.city;
+  if (pet.neighborhood) dbPet.neighborhood = pet.neighborhood;
 
   // Remove camelCase keys
   delete dbPet.ownerEmail;
@@ -60,6 +64,8 @@ const toDB = (pet: Partial<RegisteredPet>) => {
   delete dbPet.residenceSuitability;
   delete dbPet.energyLevel;
   delete dbPet.chipNumber;
+  delete dbPet.city;
+  delete dbPet.neighborhood;
   delete dbPet.personalityIcon; // Not in DB schema
 
   return dbPet;
