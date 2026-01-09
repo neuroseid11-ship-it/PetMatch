@@ -7,6 +7,7 @@ const fromDB = (row: any): AdminLog => ({
   action: row.action,
   module: row.module,
   adminEmail: row.admin_email,
+  adminName: row.admin_name,
   details: row.details,
   severity: row.severity,
   timestamp: row.timestamp
@@ -14,8 +15,11 @@ const fromDB = (row: any): AdminLog => ({
 
 const toDB = (log: Partial<AdminLog>) => {
   const dbLog: any = { ...log };
+  if (log.id) dbLog.id = log.id;
   if (log.adminEmail) dbLog.admin_email = log.adminEmail;
+  if (log.adminName) dbLog.admin_name = log.adminName;
   delete dbLog.adminEmail;
+  delete dbLog.adminName;
   return dbLog;
 };
 
@@ -35,12 +39,15 @@ export const logService = {
 
   add: async (log: Omit<AdminLog, 'id' | 'timestamp' | 'adminEmail'>): Promise<void> => {
     const adminEmail = localStorage.getItem('petmatch_user_email') || 'sistema@petmatch.com.br';
+    const adminName = localStorage.getItem('petmatch_user_name') || 'Admin';
 
     // Create local log object just to pass to toDB helper
     const newLogFull = {
+      id: crypto.randomUUID(), // Generate a UUID for the log entry
       ...log,
       adminEmail,
-      // DB defaults
+      adminName,
+      timestamp: new Date().toISOString(), // Ensure timestamp is set
     };
 
     const dbLog = toDB(newLogFull);

@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Edit2, Trash2, Save, X, Medal, Target, Coins, Star, Trophy } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
-import { missionService, Mission, RankingUser } from '../services/missionService';
+import { missionService } from '../services/missionService';
+import { Mission, Guardian } from '../types';
+import { logService } from '../services/logService';
 
 const AdminMissions: React.FC = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'missions' | 'ranking'>('missions');
     const [missions, setMissions] = useState<Mission[]>([]);
-    const [ranking, setRanking] = useState<RankingUser[]>([]);
+    const [ranking, setRanking] = useState<Guardian[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -102,6 +104,14 @@ const AdminMissions: React.FC = () => {
         e.preventDefault();
         try {
             await missionService.save(formData, editingId || undefined);
+
+            await logService.add({
+                action: editingId ? 'ATUALIZAÇÃO' : 'CADASTRO',
+                module: 'system',
+                details: `Missão "${formData.title}" ${editingId ? 'atualizada' : 'criada'}.`,
+                severity: 'info'
+            });
+
             await loadData();
             setIsModalOpen(false);
         } catch (error) {
@@ -113,7 +123,17 @@ const AdminMissions: React.FC = () => {
     const handleDelete = async (id: string) => {
         if (window.confirm("Excluir esta missão?")) {
             try {
+                // Find mission title for log
+                const mission = missions.find(m => m.id === id);
                 await missionService.delete(id);
+
+                await logService.add({
+                    action: 'EXCLUSÃO',
+                    module: 'system',
+                    details: `Missão "${mission?.title || id}" removida.`,
+                    severity: 'warning'
+                });
+
                 await loadData();
             } catch (error) {
                 console.error("Error deleting mission:", error);

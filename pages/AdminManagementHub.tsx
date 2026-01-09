@@ -15,6 +15,7 @@ import { ongService } from '../services/ongService';
 import { userService } from '../services/userService';
 import { messageService } from '../services/messageService';
 import { productService } from '../services/productService';
+import { logService } from '../services/logService';
 import { RegisteredPet, PlatformUser } from '../types';
 import PageHeader from '../components/PageHeader';
 import HubCard from '../components/HubCard';
@@ -222,6 +223,14 @@ const AdminManagementHub: React.FC = () => {
           left: '50%'
         }
       });
+
+      await logService.add({
+        action: 'CADASTRO',
+        module: 'users',
+        details: `Novo parceiro registrado: ${newPartner.name} (${newPartner.category}).`,
+        severity: 'info'
+      });
+
       alert("Empresa parceira cadastrada com sucesso!");
       setIsPartnerModalOpen(false);
       setNewPartner({ name: '', email: '', documentNumber: '', category: 'petshop', about: '' });

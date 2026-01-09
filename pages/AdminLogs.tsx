@@ -41,6 +41,7 @@ const AdminLogs: React.FC = () => {
     const matchesSearch =
       log.details.toLowerCase().includes(searchTerm.toLowerCase()) ||
       log.adminEmail.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (log.adminName && log.adminName.toLowerCase().includes(searchTerm.toLowerCase())) ||
       log.action.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesModule = moduleFilter === 'all' || log.module === moduleFilter;
@@ -135,7 +136,9 @@ const AdminLogs: React.FC = () => {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                       <User size={14} className="text-[#5d2e0a] opacity-40" />
-                      <span className="text-[10px] font-black uppercase tracking-tighter truncate max-w-[120px]">{log.adminEmail.split('@')[0]}</span>
+                      <span className="text-[10px] font-black uppercase tracking-tighter truncate max-w-[120px]" title={log.adminEmail}>
+                        {log.adminName || log.adminEmail.split('@')[0]}
+                      </span>
                     </div>
                   </td>
                   <td className="px-6 py-4">

@@ -8,6 +8,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { userService } from '../services/userService';
+import { logService } from '../services/logService';
 import { PlatformUser, UserType, UserStatus } from '../types';
 import UserRow from '../components/UserRow';
 import PageHeader from '../components/PageHeader';
@@ -43,6 +44,14 @@ const AdminUsers: React.FC = () => {
     if (window.confirm(`Excluir permanentemente o registro de ${name}?`)) {
       try {
         await userService.delete(id);
+
+        await logService.add({
+          action: 'EXCLUSÃO',
+          module: 'users',
+          details: `Usuário ${name} (ID: ${id}) excluído permanentemente.`,
+          severity: 'critical'
+        });
+
         await loadUsers();
       } catch (error) {
         console.error("Failed to delete user:", error);
@@ -54,6 +63,15 @@ const AdminUsers: React.FC = () => {
   const handleUpdateStatus = async (id: string, status: UserStatus) => {
     try {
       await userService.update(id, { status });
+
+      const user = users.find(u => u.id === id);
+      await logService.add({
+        action: 'STATUS',
+        module: 'users',
+        details: `Status do usuário ${user?.name || id} alterado para: ${status.toUpperCase()}.`,
+        severity: status === 'blocked' ? 'warning' : 'info'
+      });
+
       await loadUsers();
     } catch (error) {
       console.error("Failed to update status:", error);

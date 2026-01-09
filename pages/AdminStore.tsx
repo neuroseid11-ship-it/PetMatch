@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Product } from '../types';
 import { productService } from '../services/productService';
+import { logService } from '../services/logService';
 import PageHeader from '../components/PageHeader';
 import ExchangeChart from '../components/ExchangeChart';
 
@@ -101,6 +102,14 @@ const AdminStore: React.FC = () => {
     }
     try {
       await productService.save(formData, editingId || undefined);
+
+      await logService.add({
+        action: editingId ? 'ATUALIZAÇÃO' : 'CADASTRO',
+        module: 'store',
+        details: `Produto "${formData.name}" ${editingId ? 'atualizado' : 'cadastrado'}.`,
+        severity: 'info'
+      });
+
       await loadProducts();
       setIsModalOpen(false);
     } catch (error) {
@@ -113,6 +122,14 @@ const AdminStore: React.FC = () => {
     if (window.confirm(`Tem certeza que deseja remover "${name}" da loja?`)) {
       try {
         await productService.delete(id);
+
+        await logService.add({
+          action: 'EXCLUSÃO',
+          module: 'store',
+          details: `Produto "${name}" removido da loja.`,
+          severity: 'warning'
+        });
+
         await loadProducts();
       } catch (error) {
         console.error("Error deleting product:", error);

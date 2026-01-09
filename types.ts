@@ -4,6 +4,7 @@ export interface AdminLog {
   action: string;
   module: 'pets' | 'users' | 'ongs' | 'messages' | 'store' | 'system';
   adminEmail: string;
+  adminName?: string;
   details: string;
   timestamp: string;
   severity: 'info' | 'warning' | 'critical';
@@ -205,7 +206,7 @@ export interface GarageItem {
 }
 
 export type UserType = 'volunteer' | 'partner' | 'admin';
-export type UserStatus = 'pending' | 'approved' | 'rejected';
+export type UserStatus = 'pending' | 'approved' | 'rejected' | 'blocked';
 
 export interface PlatformUser {
   id: string;
