@@ -5,7 +5,8 @@ import {
   Settings, Database, Building2, Users, Inbox,
   ShoppingBag, ChevronRight, AlertCircle,
   CheckCircle, Dog, Cat, MessageSquare, Package, TrendingUp,
-  FileDown, X, Calendar, Download, Loader2, BarChart3, PieChart, ListFilter, Search, ArrowRight, Coins, Save, Layout as LayoutIcon
+  FileDown, X, Calendar, Download, Loader2, BarChart3, PieChart, ListFilter, Search, ArrowRight, Coins, Save, Layout as LayoutIcon,
+  Medal, Target, Trophy
 } from 'lucide-react';
 // import { jsPDF } from 'jspdf';
 // import 'jspdf-autotable';
@@ -73,7 +74,8 @@ const AdminManagementHub: React.FC = () => {
       const users = await userService.listAllFromFirestore();
       setAllUsers(users);
       const allMessages = messageService.getAll();
-      const allProducts = productService.getAll();
+      const allOngs = await ongService.getAll();
+      const allProducts = await productService.getAll();
 
       setStats(prev => ({
         ...prev,
@@ -85,7 +87,7 @@ const AdminManagementHub: React.FC = () => {
         },
         ongs: {
           ...prev.ongs,
-          total: ongService.getAll().length
+          total: allOngs.length
         },
         users: {
           ...prev.users,
@@ -107,6 +109,18 @@ const AdminManagementHub: React.FC = () => {
     fetchData();
   }, [navigate]);
 
+  // Dashboard data filtering
+  const [filteredStoreProducts, setFilteredStoreProducts] = useState<any[]>([]);
+  useEffect(() => {
+    const filterStore = async () => {
+      if (activeTab === 'store') {
+        const products = await productService.getAll();
+        setFilteredStoreProducts(products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())));
+      }
+    };
+    filterStore();
+  }, [activeTab, searchTerm]);
+
   const dashboardData = useMemo(() => {
     switch (activeTab) {
       case 'animals':
@@ -116,11 +130,31 @@ const AdminManagementHub: React.FC = () => {
       case 'messages':
         return messageService.getAll().filter(m => m.petName.toLowerCase().includes(searchTerm.toLowerCase()));
       case 'store':
-        return productService.getAll().filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
+        return filteredStoreProducts;
       default:
         return [];
     }
-  }, [activeTab, searchTerm, allPets, allUsers]);
+  }, [activeTab, searchTerm, allPets, allUsers, filteredStoreProducts]);
+
+  const [storeChartData, setStoreChartData] = useState<any[]>([]);
+
+  useEffect(() => {
+    const loadStoreChart = async () => {
+      if (activeTab === 'store') {
+        const prods = await productService.getAll();
+        const catCount = prods.reduce((acc: any, p) => {
+          acc[p.category] = (acc[p.category] || 0) + 1;
+          return acc;
+        }, {});
+        setStoreChartData(Object.entries(catCount).map(([cat, count]) => ({
+          label: cat.charAt(0).toUpperCase() + cat.slice(1),
+          value: count as number,
+          color: '#cd7f32'
+        })).slice(0, 4));
+      }
+    }
+    loadStoreChart();
+  }, [activeTab]);
 
   const chartData = useMemo(() => {
     if (activeTab === 'animals') {
@@ -144,19 +178,10 @@ const AdminManagementHub: React.FC = () => {
       ];
     }
     if (activeTab === 'store') {
-      const prods = productService.getAll();
-      const catCount = prods.reduce((acc: any, p) => {
-        acc[p.category] = (acc[p.category] || 0) + 1;
-        return acc;
-      }, {});
-      return Object.entries(catCount).map(([cat, count]) => ({
-        label: cat.charAt(0).toUpperCase() + cat.slice(1),
-        value: count as number,
-        color: '#cd7f32'
-      })).slice(0, 4);
+      return storeChartData;
     }
     return [];
-  }, [activeTab, stats, allUsers]);
+  }, [activeTab, stats, allUsers, storeChartData]);
 
   const handleSavePrice = () => {
     localStorage.setItem('petmatch_petcoin_price', petCoinPrice.toString());
@@ -398,6 +423,12 @@ const AdminManagementHub: React.FC = () => {
         <HubCard title="Loja" path="/admin/loja" icon={<ShoppingBag size={24} />} chartData={stats.store.trend} color="bg-[#fffdf0]" accent="border-[#cd7f32]" textColor="text-[#cd7f32]" chartColor="#cd7f32"
           stats={[
             { label: 'Produtos', value: stats.store.total, icon: <Package size={10} /> }
+          ]}
+        />
+        <HubCard title="Gamificação" path="/admin/missions" icon={<Medal size={24} />} chartData={[10, 20, 15, 25, 30]} color="bg-[#f0f9ff]" accent="border-[#0284c7]" textColor="text-[#0284c7]" chartColor="#0284c7"
+          stats={[
+            { label: 'Missões', value: 3, icon: <Target size={10} /> },
+            { label: 'Ranking', value: 12, icon: <Trophy size={10} /> }
           ]}
         />
         <HubCard title="Parceiros" path="/admin/parceiros" icon={<Building2 size={24} />} chartData={[5, 10, 15, 20]} color="bg-[#f0fff4]" accent="border-[#55a630]" textColor="text-[#55a630]" chartColor="#55a630"
