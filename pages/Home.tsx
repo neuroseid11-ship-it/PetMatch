@@ -71,9 +71,9 @@ const Home: React.FC = () => {
             {/* Esquerda: Foto e Personalidade */}
             <div className="lg:col-span-8 space-y-6">
               <div className="relative group">
-                <div className="wood-panel p-2 rounded-[40px] border-4 border-[#c9a688] shadow-2xl aspect-video overflow-hidden bg-white/40">
+                <Link to={`/pet/${currentPet.id}`} className="wood-panel p-2 rounded-[40px] border-4 border-[#c9a688] shadow-2xl aspect-video overflow-hidden bg-white/40 block cursor-pointer hover:opacity-95 transition-opacity">
                   <img src={currentPet.images[0]} className="w-full h-full object-cover rounded-[32px]" alt="" />
-                </div>
+                </Link>
 
                 <button
                   onClick={() => setCurrentPetIndex(prev => (prev - 1 + pets.length) % pets.length)}
@@ -129,6 +129,13 @@ const Home: React.FC = () => {
                 >
                   Quero Adotar <MessageSquare size={24} />
                 </button>
+
+                <Link
+                  to={`/pet/${currentPet.id}`}
+                  className="w-full wood-panel bg-[#f1dfcf] py-4 rounded-[22px] text-[#5d2e0a] font-black text-lg shadow-md border-b-4 border-[#c9a688] flex items-center justify-center gap-3 hover:bg-[#e6cbb3] transition-all"
+                >
+                  Agendar Visita <Calendar size={20} />
+                </Link>
 
                 <div className="pt-4 border-t-2 border-[#c9a688]/30 flex items-center justify-center gap-2">
                   <ShieldCheck className="text-[#55a630]" size={16} />
