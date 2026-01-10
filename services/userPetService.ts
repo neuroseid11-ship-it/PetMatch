@@ -97,5 +97,17 @@ export const userPetService = {
       .delete()
       .eq('id', id);
     if (error) console.error('Error deleting user pet:', error);
+  },
+
+  deleteAll: async (): Promise<void> => {
+    const { error } = await supabase
+      .from('user_pets')
+      .delete()
+      .neq('id', '000000');
+
+    if (error) {
+      console.error('Error deleting all user pets:', error);
+      throw error;
+    }
   }
 };

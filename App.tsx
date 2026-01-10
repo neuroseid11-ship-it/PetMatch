@@ -34,19 +34,33 @@ import AuthPage from './pages/AuthPage';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [userStatus, setUserStatus] = useState<string>('pending');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check active session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setIsAuthenticated(!!session);
-      if (session?.user?.email) {
-        localStorage.setItem('petmatch_user_email', session.user.email);
-        // Temporary role mock until we have roles in DB
-        if (session.user.email.includes('admin') || session.user.email.includes('neuroseid11')) {
-          localStorage.setItem('petmatch_user_role', 'admin');
-        } else {
-          localStorage.setItem('petmatch_user_role', 'user');
+      if (session?.user) {
+        if (session.user.email) {
+          localStorage.setItem('petmatch_user_email', session.user.email);
+          // Temporary role mock until we have roles in DB
+          if (session.user.email.includes('admin') || session.user.email.includes('neuroseid11')) {
+            localStorage.setItem('petmatch_user_role', 'admin');
+          } else {
+            localStorage.setItem('petmatch_user_role', 'user');
+          }
+        }
+
+        // Fetch profile status
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('status')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile) {
+          setUserStatus(profile.status || 'pending');
         }
       }
       setLoading(false);
@@ -111,38 +125,60 @@ const App: React.FC = () => {
           path="/*"
           element={
             isAuthenticated ? (
-              <Layout onLogout={handleLogout}>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/atividades" element={<Gamification />} />
-                  <Route path="/adocao" element={<AdoptionList />} />
-                  <Route path="/league-fantasy" element={<AdoptionLeague />} />
-                  <Route path="/mapa" element={<SolidarityMap />} />
-                  <Route path="/parceiros" element={<PartnerCompanies />} />
-                  <Route path="/apadrinhar" element={<Sponsor />} />
-                  <Route path="/liga" element={<League />} />
-                  <Route path="/cadastrar" element={<RegisterPet />} />
-                  <Route path="/editar/:id" element={<RegisterPet />} />
-                  <Route path="/pet/:id" element={<PetDetails />} />
-                  <Route path="/mural" element={<MuralFeed />} />
-                  <Route path="/mensagens" element={<UserMessages />} />
-                  <Route path="/eventos" element={<EventsCalendar />} />
-                  <Route path="/loja" element={<Store />} />
-                  <Route path="/perfil" element={<UserProfile />} />
-                  <Route path="/perfil/:id" element={<UserProfile />} />
-                  <Route path="/admin" element={<AdminManagementHub />} />
-                  <Route path="/admin/pets" element={<AdminDashboard />} />
-                  <Route path="/admin/ongs" element={<AdminONGs />} />
-                  <Route path="/admin/parceiros" element={<AdminPartners />} />
-                  <Route path="/admin/users" element={<AdminUsers />} />
-                  <Route path="/admin/messages" element={<AdminMessages />} />
-                  <Route path="/admin/logs" element={<AdminLogs />} />
-                  <Route path="/admin/missions" element={<AdminMissions />} />
-                  <Route path="/admin/loja" element={<AdminStore />} />
-                  <Route path="/faq" element={<FAQ />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </Layout>
+              userStatus === 'pending' ? (
+                <div className="min-h-screen bg-[#fdf5ed] flex flex-col items-center justify-center p-8 text-center space-y-6">
+                  <div className="wood-panel p-10 rounded-[40px] border-4 border-[#c9a688] shadow-2xl max-w-lg bg-white relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-2 grass-bg"></div>
+                    <h1 className="text-3xl font-black text-[#5d2e0a] mb-4">Cadastro em Análise</h1>
+                    <div className="w-20 h-20 mx-auto bg-[#fdf5ed] rounded-full flex items-center justify-center border-4 border-[#c9a688] mb-6">
+                      <span className="text-4xl">⏳</span>
+                    </div>
+                    <p className="text-[#8b4513] font-bold text-lg mb-6">
+                      Olá! Seu cadastro foi recebido e está passando pela verificação da nossa equipe de guardiões.
+                    </p>
+                    <p className="text-sm text-[#8b4513]/80 mb-8 italic">
+                      Isso é necessário para garantir a segurança de todos os pets e usuários da plataforma. Você receberá um e-mail assim que seu acesso for liberado.
+                    </p>
+                    <button onClick={handleLogout} className="text-[#5d2e0a] font-black underline hover:text-[#3d7a22]">
+                      Voltar para Login
+                    </button>
+                  </div>
+                  <p className="text-xs text-[#c9a688] font-bold uppercase tracking-widest mt-8">PetMatch • Guardian Platform</p>
+                </div>
+              ) : (
+                <Layout onLogout={handleLogout}>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/atividades" element={<Gamification />} />
+                    <Route path="/adocao" element={<AdoptionList />} />
+                    <Route path="/league-fantasy" element={<AdoptionLeague />} />
+                    <Route path="/mapa" element={<SolidarityMap />} />
+                    <Route path="/parceiros" element={<PartnerCompanies />} />
+                    <Route path="/apadrinhar" element={<Sponsor />} />
+                    <Route path="/liga" element={<League />} />
+                    <Route path="/cadastrar" element={<RegisterPet />} />
+                    <Route path="/editar/:id" element={<RegisterPet />} />
+                    <Route path="/pet/:id" element={<PetDetails />} />
+                    <Route path="/mural" element={<MuralFeed />} />
+                    <Route path="/mensagens" element={<UserMessages />} />
+                    <Route path="/eventos" element={<EventsCalendar />} />
+                    <Route path="/loja" element={<Store />} />
+                    <Route path="/perfil" element={<UserProfile />} />
+                    <Route path="/perfil/:id" element={<UserProfile />} />
+                    <Route path="/admin" element={<AdminManagementHub />} />
+                    <Route path="/admin/pets" element={<AdminDashboard />} />
+                    <Route path="/admin/ongs" element={<AdminONGs />} />
+                    <Route path="/admin/parceiros" element={<AdminPartners />} />
+                    <Route path="/admin/users" element={<AdminUsers />} />
+                    <Route path="/admin/messages" element={<AdminMessages />} />
+                    <Route path="/admin/logs" element={<AdminLogs />} />
+                    <Route path="/admin/missions" element={<AdminMissions />} />
+                    <Route path="/admin/loja" element={<AdminStore />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </Layout>
+              )
             ) : (
               <Navigate to="/login" replace />
             )

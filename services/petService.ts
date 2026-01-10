@@ -132,5 +132,19 @@ export const petService = {
       .eq('id', id);
 
     if (error) console.error('Error deleting pet:', error);
+  },
+
+  deleteAll: async (): Promise<void> => {
+    // Fetch all IDs first to avoid mass delete if RLS blocks blanket delete
+    // OR try deleting where id is not null (common pattern)
+    const { error } = await supabase
+      .from('registered_pets')
+      .delete()
+      .neq('id', '000000'); // Hack to delete all, assuming no ID is 000000. Better than iterating.
+
+    if (error) {
+      console.error('Error deleting all registered pets:', error);
+      throw error;
+    }
   }
 };

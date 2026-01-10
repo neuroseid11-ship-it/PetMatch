@@ -40,6 +40,31 @@ const AdminUsers: React.FC = () => {
     }
   };
 
+  const handleCleanDatabase = async () => {
+    if (window.confirm('ATENÇÃO CRÍTICA: Isso apagará TODOS os pets cadastrados no sistema (Adoção, Apadrinhamento e Pets de Usuários). Essa ação é IRREVERSÍVEL. Deseja continuar?')) {
+      const confirm2 = window.prompt('Digite "DELETAR TUDO" para confirmar a exclusão em massa:');
+      if (confirm2 === 'DELETAR TUDO') {
+        try {
+          // Delete from both tables
+          await import('../services/petService').then(m => m.petService.deleteAll());
+          await import('../services/userPetService').then(m => m.userPetService.deleteAll());
+
+          await logService.add({
+            action: 'LIMPEZA_SISTEMA',
+            module: 'system',
+            details: 'O administrador realizou a limpeza completa do banco de dados de pets.',
+            severity: 'critical'
+          });
+
+          alert('Limpeza concluída com sucesso. Todos os pets foram removidos.');
+        } catch (error) {
+          console.error(error);
+          alert('Ocorreu um erro durante a limpeza. Verifique o console.');
+        }
+      }
+    }
+  };
+
   const handleDelete = async (id: string, name: string) => {
     if (window.confirm(`Excluir permanentemente o registro de ${name}?`)) {
       try {
@@ -135,6 +160,14 @@ const AdminUsers: React.FC = () => {
             title="Atualizar Lista"
           >
             <Database size={18} className="animate-pulse" />
+          </button>
+
+          <button
+            onClick={handleCleanDatabase}
+            className="p-2 ml-2 bg-red-100 text-red-600 border border-red-300 rounded-xl hover:bg-red-200 transition-all"
+            title="LIMPAR BANCO DE DADOS (CUIDADO)"
+          >
+            <Trash2 size={18} />
           </button>
         </div>
 

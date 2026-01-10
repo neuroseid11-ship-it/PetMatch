@@ -211,14 +211,24 @@ const UserProfile: React.FC = () => {
       setIsPetModalOpen(true);
    };
 
-   const handlePetPhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+   const handlePetPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
-      if (file) {
-         const reader = new FileReader();
-         reader.onloadend = () => {
-            setPetFormData(prev => ({ ...prev, photoUrl: reader.result as string }));
-         };
-         reader.readAsDataURL(file);
+      if (file && user) {
+         try {
+            // Create a path like: userId/petName_timestamp.ext
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${user.id}/${Date.now()}_pet.${fileExt}`;
+
+            // Upload using existing service
+            // Note: We use 'avatars' bucket as a fallback or ensure 'pet-images' exists. 
+            // Based on profileService definition, 'pet-images' is a valid option.
+            const url = await profileService.uploadImage(file, 'pet-images', fileName);
+
+            setPetFormData(prev => ({ ...prev, photoUrl: url }));
+         } catch (error) {
+            console.error('Erro ao fazer upload da imagem do pet:', error);
+            alert('Erro ao enviar a imagem. Tente novamente ou use uma imagem menor.');
+         }
       }
    };
 
