@@ -477,6 +477,11 @@ const AdminManagementHub: React.FC = () => {
             { label: 'Total', value: allUsers.filter(u => u.type === 'partner').length, icon: <Users size={10} /> }
           ]}
         />
+        <HubCard title="Agendamentos" path="/admin/visitas" icon={<Calendar size={24} />} chartData={[3, 5, 8, 12, 15]} color="bg-[#fff9f0]" accent="border-[#f59e0b]" textColor="text-[#f59e0b]" chartColor="#f59e0b"
+          stats={[
+            { label: 'Visitas', value: messageService.getAll().filter(m => m.type === 'visit').length, icon: <Calendar size={10} /> }
+          ]}
+        />
       </div>
 
       {isReportModalOpen && (
