@@ -242,10 +242,21 @@ const AdminManagementHub: React.FC = () => {
         const visits = await VisitService.getAll();
         generateScheduleReport(visits);
       } else {
-        // All modules
+        // All modules - Relatório Completo
         const pets = await petService.getAll();
         const users = await userService.listAllFromFirestore();
-        generateFullReport(pets, users);
+        const ongs = await ongService.getAll();
+        const messages = messageService.getAll();
+        const products = await productService.getAll();
+        const { missionService } = await import('../services/missionService');
+        const { default: RankingService } = await import('../services/rankingService');
+        const { default: VisitService } = await import('../services/visitService');
+        const missions = await missionService.getAll();
+        const ranking = await RankingService.getAll();
+        const partners = users.filter(u => u.type === 'partner');
+        const visits = await VisitService.getAll();
+
+        await generateFullReport(pets, users, ongs, messages, products, missions, ranking, partners, visits);
       }
 
       await logService.add({

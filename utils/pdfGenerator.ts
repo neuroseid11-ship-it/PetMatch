@@ -170,97 +170,303 @@ export const generateUserReport = (users: PlatformUser[]) => {
     doc.save(`PetMatch_Relatorio_Usuarios_${new Date().toISOString().split('T')[0]}.pdf`);
 };
 
-export const generateFullReport = (pets: RegisteredPet[], users: PlatformUser[]) => {
+export const generateFullReport = async (
+    pets: RegisteredPet[],
+    users: PlatformUser[],
+    ongs: any[],
+    messages: any[],
+    products: any[],
+    missions: any[],
+    ranking: any[],
+    partners: PlatformUser[],
+    visits: any[]
+) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
 
-    // Header
+    // Importar ChartGenerator dinamicamente
+    const ChartGenerator = (await import('./chartGenerator')).default;
+    const chartGen = new ChartGenerator(400, 250);
+
+    // PÁGINA 1: HEADER E RESUMO GERAL
     doc.setFillColor(85, 166, 48);
     doc.rect(0, 0, pageWidth, 30, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(24);
     doc.setFont('helvetica', 'bold');
-    doc.text('PetMatch - Relatório Completo', pageWidth / 2, 20, { align: 'center' });
+    doc.text('Pet Match - Relatório Completo do Sistema', pageWidth / 2, 20, { align: 'center' });
 
-    // Timestamp
     doc.setFontSize(10);
     doc.setTextColor(139, 69, 19);
     doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 40);
 
-    // Overall Summary
+    // Estatísticas Gerais
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('Estatísticas Gerais da Plataforma', 14, 55);
+    doc.text('📊 Visão Geral da Plataforma', 14, 55);
 
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Animais:', 14, 65);
-    doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
-    doc.text(`Total: ${pets.length} | Cães: ${pets.filter(p => p.type === 'dog').length} | Gatos: ${pets.filter(p => p.type === 'cat').length}`, 14, 72);
-
-    doc.setFontSize(11);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Usuários:', 14, 82);
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    doc.text(`Total: ${users.length} | Voluntários: ${users.filter(u => u.type === 'volunteer').length} | Parceiros: ${users.filter(u => u.type === 'partner').length}`, 14, 89);
+    let y = 65;
+    doc.text(`🐾 Animais: ${pets.length} (${pets.filter(p => p.type === 'dog').length} cães, ${pets.filter(p => p.type === 'cat').length} gatos)`, 14, y);
+    y += 7;
+    doc.text(`👥 Usuários: ${users.length} (${users.filter(u => u.type === 'volunteer').length} voluntários, ${users.filter(u => u.type === 'partner').length} parceiros)`, 14, y);
+    y += 7;
+    doc.text(`🏢 ONGs: ${ongs.length}`, 14, y);
+    y += 7;
+    doc.text(`💬 Mensagens: ${messages.length}`, 14, y);
+    y += 7;
+    doc.text(`🛍️ Produtos na Loja: ${products.length}`, 14, y);
+    y += 7;
+    doc.text(`🎯 Missões: ${missions.length}`, 14, y);
+    y += 7;
+    doc.text(`🏆 Usuários no Ranking: ${ranking.length}`, 14, y);
+    y += 7;
+    doc.text(`📅 Agendamentos: ${visits.length}`, 14, y);
 
-    // Add page for detailed pet data
+    // Gráfico: Distribuição de Pets por Espécie
+    try {
+        const pieChart = await chartGen.generatePieChart({
+            labels: ['Cães', 'Gatos'],
+            values: [
+                pets.filter(p => p.type === 'dog').length,
+                pets.filter(p => p.type === 'cat').length
+            ],
+            colors: ['#55a630', '#f59e0b']
+        }, 'Distribuição de Pets por Espécie');
+
+        doc.addPage();
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(93, 46, 10);
+        doc.text('📈 Gráficos - Pets', 14, 20);
+        doc.addImage(pieChart, 'PNG', 15, 30, 180, 112);
+    } catch (e) {
+        console.error('Erro ao gerar gráfico:', e);
+    }
+
+    // PÁGINA 2: DETALHAMENTO PETS
     doc.addPage();
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(93, 46, 10);
-    doc.text('Detalhamento - Animais', 14, 20);
+    doc.text('🐾 Detalhamento - Animais', 14, 20);
 
-    const petTableData = pets.slice(0, 50).map(pet => [
+    const petTableData = pets.slice(0, 40).map(pet => [
         pet.name || 'Sem nome',
         pet.type === 'dog' ? 'Cão' : 'Gato',
         pet.breed || 'SRD',
+        pet.city || 'N/A',
         pet.status === 'approved' ? 'Aprovado' : 'Pendente'
     ]);
 
     autoTable(doc, {
         startY: 30,
-        head: [['Nome', 'Tipo', 'Raça', 'Status']],
+        head: [['Nome', 'Tipo', 'Raça', 'Cidade', 'Status']],
         body: petTableData,
         theme: 'grid',
         headStyles: { fillColor: [85, 166, 48], textColor: [255, 255, 255], fontStyle: 'bold' },
-        bodyStyles: { fontSize: 9, textColor: [93, 46, 10] },
+        bodyStyles: { fontSize: 8, textColor: [93, 46, 10] },
         alternateRowStyles: { fillColor: [241, 223, 207] }
     });
 
-    // Add page for user data
+    // PÁGINA 3: DETALHAMENTO USUÁRIOS + GRÁFICO
     doc.addPage();
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('Detalhamento - Usuários', 14, 20);
+    doc.text('👥 Detalhamento - Usuários', 14, 20);
 
-    const userTableData = users.slice(0, 50).map(user => [
+    const userTableData = users.slice(0, 30).map(user => [
         user.name || 'Sem nome',
         user.email,
         user.type === 'volunteer' ? 'Voluntário' : 'Parceiro',
+        user.city || 'N/A',
         user.status === 'approved' ? 'Aprovado' : 'Pendente'
     ]);
 
     autoTable(doc, {
         startY: 30,
-        head: [['Nome', 'Email', 'Tipo', 'Status']],
+        head: [['Nome', 'Email', 'Tipo', 'Cidade', 'Status']],
         body: userTableData,
         theme: 'grid',
         headStyles: { fillColor: [85, 166, 48], textColor: [255, 255, 255], fontStyle: 'bold' },
-        bodyStyles: { fontSize: 9, textColor: [93, 46, 10] },
+        bodyStyles: { fontSize: 8, textColor: [93, 46, 10] },
         alternateRowStyles: { fillColor: [241, 223, 207] }
     });
 
-    // Footer on all pages
+    // Gráfico: Usuários por Tipo
+    try {
+        const userChart = await chartGen.generatePieChart({
+            labels: ['Voluntários', 'Parceiros'],
+            values: [
+                users.filter(u => u.type === 'volunteer').length,
+                users.filter(u => u.type === 'partner').length
+            ],
+            colors: ['#3b82f6', '#8b5cf6']
+        }, 'Usuários por Tipo');
+
+        const finalY = (doc as any).lastAutoTable.finalY || 150;
+        if (finalY < 200) {
+            doc.addImage(userChart, 'PNG', 15, finalY + 10, 180, 112);
+        }
+    } catch (e) {
+        console.error('Erro ao gerar gráfico:', e);
+    }
+
+    // PÁGINA 4: ONGs
+    if (ongs.length > 0) {
+        doc.addPage();
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`🏢 ONGs Cadastradas (${ongs.length})`, 14, 20);
+
+        const ongTableData = ongs.slice(0, 30).map(ong => [
+            ong.name || 'Sem nome',
+            ong.cidade || 'N/A',
+            ong.estado || 'N/A',
+            pets.filter(p => p.ongId === ong.id).length.toString()
+        ]);
+
+        autoTable(doc, {
+            startY: 30,
+            head: [['Nome', 'Cidade', 'Estado', 'Pets']],
+            body: ongTableData,
+            theme: 'grid',
+            headStyles: { fillColor: [255, 107, 107], textColor: [255, 255, 255], fontStyle: 'bold' },
+            bodyStyles: { fontSize: 9, textColor: [93, 46, 10] },
+            alternateRowStyles: { fillColor: [255, 245, 245] }
+        });
+    }
+
+    // PÁGINA 5: MENSAGENS
+    if (messages.length > 0) {
+        doc.addPage();
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`💬 Mensagens e Solicitações (${messages.length})`, 14, 20);
+
+        const msgTableData = messages.slice(0, 30).map(msg => [
+            msg.petName || 'N/A',
+            msg.userName || 'N/A',
+            msg.type === 'interest' ? 'Adoção' : 'Visita',
+            msg.status === 'pending' ? 'Pendente' : 'Respondida'
+        ]);
+
+        autoTable(doc, {
+            startY: 30,
+            head: [['Pet', 'Solicitante', 'Tipo', 'Status']],
+            body: msgTableData,
+            theme: 'grid',
+            headStyles: { fillColor: [59, 130, 246], textColor: [255, 255, 255], fontStyle: 'bold' },
+            bodyStyles: { fontSize: 9, textColor: [93, 46, 10] },
+            alternateRowStyles: { fillColor: [240, 247, 255] }
+        });
+    }
+
+    // PÁGINA 6: LOJA
+    if (products.length > 0) {
+        doc.addPage();
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`🛍️ Produtos da Loja (${products.length})`, 14, 20);
+
+        const prodTableData = products.slice(0, 30).map(prod => [
+            prod.name,
+            prod.category || 'N/A',
+            `${prod.price} PetCoins`,
+            prod.stock?.toString() || '0'
+        ]);
+
+        autoTable(doc, {
+            startY: 30,
+            head: [['Produto', 'Categoria', 'Preço', 'Estoque']],
+            body: prodTableData,
+            theme: 'grid',
+            headStyles: { fillColor: [205, 127, 50], textColor: [255, 255, 255], fontStyle: 'bold' },
+            bodyStyles: { fontSize: 9, textColor: [93, 46, 10] },
+            alternateRowStyles: { fillColor: [255, 253, 240] }
+        });
+    }
+
+    // PÁGINA 7: RANKING + GRÁFICO
+    if (ranking.length > 0) {
+        doc.addPage();
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`🏆 Ranking de Gamificação (Top ${Math.min(20, ranking.length)})`, 14, 20);
+
+        const rankTableData = ranking.slice(0, 20).map(r => [
+            r.rank_position?.toString() || '?',
+            r.user_name || 'Desconhecido',
+            r.total_xp?.toString() || '0',
+            r.level?.toString() || '1',
+            r.missions_completed?.toString() || '0'
+        ]);
+
+        autoTable(doc, {
+            startY: 30,
+            head: [['Posição', 'Usuário', 'XP', 'Nível', 'Missões']],
+            body: rankTableData,
+            theme: 'grid',
+            headStyles: { fillColor: [2, 132, 199], textColor: [255, 255, 255], fontStyle: 'bold' },
+            bodyStyles: { fontSize: 9, textColor: [93, 46, 10] },
+            alternateRowStyles: { fillColor: [240, 249, 255] }
+        });
+
+        // Gráfico: Top 10 Ranking
+        try {
+            const top10 = ranking.slice(0, 10);
+            const rankChart = await chartGen.generateHorizontalBarChart({
+                labels: top10.map(r => r.user_name || 'Desconhecido'),
+                values: top10.map(r => r.total_xp || 0),
+                color: '#0284c7'
+            }, 'Top 10 Usuários por XP');
+
+            doc.addPage();
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('📊 Gráfico - Ranking', 14, 20);
+            doc.addImage(rankChart, 'PNG', 15, 30, 180, 112);
+        } catch (e) {
+            console.error('Erro ao gerar gráfico:', e);
+        }
+    }
+
+    // PÁGINA 8: AGENDAMENTOS
+    if (visits.length > 0) {
+        doc.addPage();
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`📅 Agendamentos de Visitas (${visits.length})`, 14, 20);
+
+        const visitTableData = visits.slice(0, 30).map(v => [
+            v.pet_name || v.petName || 'N/A',
+            v.visitor_name || v.userName || 'N/A',
+            v.visit_date ? new Date(v.visit_date).toLocaleDateString('pt-BR') : 'N/A',
+            v.status === 'pending' ? 'Pendente' :
+                v.status === 'confirmed' ? 'Confirmada' :
+                    v.status === 'completed' ? 'Realizada' : 'Cancelada'
+        ]);
+
+        autoTable(doc, {
+            startY: 30,
+            head: [['Pet', 'Visitante', 'Data', 'Status']],
+            body: visitTableData,
+            theme: 'grid',
+            headStyles: { fillColor: [245, 158, 11], textColor: [255, 255, 255], fontStyle: 'bold' },
+            bodyStyles: { fontSize: 9, textColor: [93, 46, 10] },
+            alternateRowStyles: { fillColor: [255, 249, 240] }
+        });
+    }
+
+    // Footer em todas as páginas
     const pageCount = doc.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         doc.setFontSize(8);
         doc.setTextColor(139, 69, 19);
         doc.text(
-            `Página ${i} de ${pageCount}`,
+            `PetMatch - Relatório Completo | Página ${i} de ${pageCount}`,
             pageWidth / 2,
             doc.internal.pageSize.getHeight() - 10,
             { align: 'center' }
