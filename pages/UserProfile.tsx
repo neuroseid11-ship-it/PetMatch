@@ -387,14 +387,16 @@ const UserProfile: React.FC = () => {
 
                   <div className="pt-6 flex flex-wrap gap-2 justify-center md:justify-start">
                      <button onClick={() => setActiveTab('info')} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === 'info' ? 'grass-bg text-white shadow-md' : 'wood-panel text-[#5d2e0a]'}`}>Dados da Conta</button>
+
+                     {/* Aba Meus Pets - Disponível para TODOS os usuários */}
+                     <button onClick={() => setActiveTab('pets')} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === 'pets' ? 'grass-bg text-white shadow-md' : 'wood-panel text-[#5d2e0a]'}`}>Meus Pets ({userPets.length})</button>
+
                      {user.type === 'volunteer' && (
-                        <>
-                           <button onClick={() => setActiveTab('pets')} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === 'pets' ? 'grass-bg text-white shadow-md' : 'wood-panel text-[#5d2e0a]'}`}>Meus Pets ({userPets.length})</button>
-                           <button onClick={() => setIsAdoptionPetsModalOpen(true)} className="px-6 py-2 rounded-xl text-[10px] font-black uppercase wood-panel text-[#5d2e0a] hover:bg-[#d2b48c] transition-all border-2 border-[#c9a688] flex items-center gap-2">
-                              Meus pets para adoção ({adoptionPets.length})
-                           </button>
-                        </>
+                        <button onClick={() => setIsAdoptionPetsModalOpen(true)} className="px-6 py-2 rounded-xl text-[10px] font-black uppercase wood-panel text-[#5d2e0a] hover:bg-[#d2b48c] transition-all border-2 border-[#c9a688] flex items-center gap-2">
+                           Meus pets para adoção ({adoptionPets.length})
+                        </button>
                      )}
+
                      {user.type === 'partner' && (
                         <button onClick={() => setActiveTab('business')} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${activeTab === 'business' ? 'grass-bg text-white shadow-md' : 'wood-panel text-[#5d2e0a]'}`}>Meu Negócio (Vitrine)</button>
                      )}
