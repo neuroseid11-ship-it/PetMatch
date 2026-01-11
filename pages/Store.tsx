@@ -49,7 +49,8 @@ const Store: React.FC = () => {
   }, []);
 
   const loadData = async () => {
-    setProducts(productService.getAll());
+    const fetchedProducts = await productService.getAll();
+    setProducts(fetchedProducts);
     setAllGarageItems(garageService.getApproved());
     await loadUser();
   };
@@ -161,15 +162,17 @@ const Store: React.FC = () => {
   const categories = [
     { id: 'all', label: 'Todos' },
     { id: 'garagem', label: 'Desapegos' },
+    { id: 'alimentos', label: 'Alimentos' },
+    { id: 'higiene', label: 'Higiene' },
+    { id: 'brinquedos', label: 'Brinquedos' },
+    { id: 'acessorios', label: 'Acessórios' },
+    { id: 'parceiros', label: 'Empresas Parceiras' },
     { id: 'cursos', label: 'Cursos' },
     { id: 'bones', label: 'Bonés' },
     { id: 'camisetas', label: 'Camisetas' },
     { id: 'adesivos', label: 'Adesivos' },
-    { id: 'parceiros', label: 'Empresas Parceiras' },
     { id: 'moedas', label: 'Moedas' },
     { id: 'canetas', label: 'Canetas' },
-    { id: 'acessorios', label: 'Acessórios' },
-    { id: 'brinquedos', label: 'Brinquedos' },
   ];
 
   return (
@@ -414,8 +417,8 @@ const Store: React.FC = () => {
                         <img src={item.imageUrl} className="w-full h-full object-cover" alt={item.name} />
                         <div className="absolute top-2 right-2">
                           <span className={`text-[7px] font-black px-2 py-1 rounded-full border uppercase shadow-sm ${item.status === 'approved' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-                              item.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-200 animate-pulse' :
-                                'bg-red-50 text-red-600 border-red-200'
+                            item.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-200 animate-pulse' :
+                              'bg-red-50 text-red-600 border-red-200'
                             }`}>
                             {item.status === 'approved' ? 'No Ar' : item.status === 'pending' ? 'Em Análise' : 'Recusado'}
                           </span>

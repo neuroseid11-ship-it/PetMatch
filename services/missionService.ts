@@ -37,20 +37,18 @@ export const missionService = {
                 .from('missions')
                 .update(mission)
                 .eq('id', id)
-                .select()
-                .single();
+                .select();
 
             if (error) throw error;
-            return data;
+            return data?.[0] || data;
         } else {
             const { data, error } = await supabase
                 .from('missions')
                 .insert(mission)
-                .select()
-                .single();
+                .select();
 
             if (error) throw error;
-            return data;
+            return data?.[0] || data;
         }
     },
 
