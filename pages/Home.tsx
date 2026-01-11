@@ -24,11 +24,6 @@ const Home: React.FC = () => {
   const [message, setMessage] = useState('');
   const [isSent, setIsSent] = useState(false);
 
-  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
-  const [scheduleDate, setScheduleDate] = useState('');
-  const [scheduleTime, setScheduleTime] = useState('');
-  const [isScheduled, setIsScheduled] = useState(false);
-
   const eventsScrollRef = useRef<HTMLDivElement>(null);
   const muralScrollRef = useRef<HTMLDivElement>(null);
   const lostScrollRef = useRef<HTMLDivElement>(null);
@@ -133,13 +128,6 @@ const Home: React.FC = () => {
                   className="w-full grass-bg py-5 rounded-[22px] text-white font-black text-xl shadow-xl hover:translate-y-[-2px] transition-transform border-b-8 border-[#3d7a22] flex items-center justify-center gap-3"
                 >
                   Quero Adotar <MessageSquare size={24} />
-                </button>
-
-                <button
-                  onClick={() => setIsScheduleModalOpen(true)}
-                  className="w-full wood-panel bg-[#f1dfcf] py-4 rounded-[22px] text-[#5d2e0a] font-black text-lg shadow-md border-b-4 border-[#c9a688] flex items-center justify-center gap-3 hover:bg-[#e6cbb3] transition-all"
-                >
-                  Agendar Visita <Calendar size={20} />
                 </button>
 
                 <div className="pt-4 border-t-2 border-[#c9a688]/30 flex items-center justify-center gap-2">
