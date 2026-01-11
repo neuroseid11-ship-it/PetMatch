@@ -115,7 +115,7 @@ const Footer: React.FC = () => {
 
             {isContactOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-                    <div className="wood-panel w-full max-sm rounded-[40px] border-4 border-[#c9a688] shadow-2xl relative p-8 animate-in zoom-in-95 duration-300">
+                    <div className="wood-panel w-full max-w-md rounded-[40px] border-4 border-[#c9a688] shadow-2xl relative p-8 animate-in zoom-in-95 duration-300">
                         <button
                             onClick={() => setIsContactOpen(false)}
                             className="absolute top-6 right-6 text-[#5d2e0a] hover:rotate-90 transition-transform"
@@ -198,7 +198,7 @@ const Footer: React.FC = () => {
 
 const Modal = ({ title, children, onClose }: { title: string, children?: React.ReactNode, onClose: () => void }) => (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
-        <div className="wood-panel w-full max-sm rounded-[32px] border-4 border-[#c9a688] shadow-2xl relative p-8 animate-in zoom-in-95">
+        <div className="wood-panel w-full max-w-md rounded-[32px] border-4 border-[#c9a688] shadow-2xl relative p-8 animate-in zoom-in-95">
             <button onClick={onClose} className="absolute top-6 right-6 text-[#5d2e0a] hover:rotate-90 transition-transform"><X size={20} /></button>
             <h2 className="text-2xl font-black text-[#5d2e0a] mb-6 flex items-center gap-2 border-b-2 border-[#c9a688] pb-2 uppercase tracking-tighter">
                 <Info size={24} className="text-[#55a630]" /> {title}
