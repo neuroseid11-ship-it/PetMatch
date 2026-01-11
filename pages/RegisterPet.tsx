@@ -11,6 +11,7 @@ import {
 import { petService } from '../services/petService';
 import { ongService } from '../services/ongService';
 import { logService } from '../services/logService';
+import { profileService } from '../services/profileService';
 import { RegisteredPet, ONG } from '../types';
 
 const RegisterPet: React.FC = () => {
@@ -77,14 +78,24 @@ const RegisterPet: React.FC = () => {
     fetchPet();
   }, [id]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, images: [reader.result as string] }));
-      };
-      reader.readAsDataURL(file);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const userId = session?.user?.id || 'anonymous';
+
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${userId}/${Date.now()}_pet_reg.${fileExt}`;
+
+        // Upload to storage
+        const url = await profileService.uploadImage(file, 'pet-images', fileName);
+
+        setFormData(prev => ({ ...prev, images: [url] }));
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Erro ao enviar imagem. Tente uma imagem menor.');
+      }
     }
   };
 

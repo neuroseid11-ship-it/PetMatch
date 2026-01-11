@@ -37,7 +37,16 @@ const toDB = (pet: Partial<RegisteredPet>) => {
   const dbPet: any = { ...pet };
   if (pet.ownerEmail) dbPet.owner_email = pet.ownerEmail;
   if (pet.adoptionType) dbPet.adoption_type = pet.adoptionType;
-  if (pet.id) delete dbPet.id; // DB handles ID usually, but here we might send it if updating
+  if (pet.id && !pet.id.match(/^[a-z0-9]{9}$/)) delete dbPet.id; // Only delete if NOT our generated ID format, or just keep it.
+  // Actually, better logic: 
+  // If we want to allow explicit ID setting (like in register), we should KEEP IT.
+  // The 'delete dbPet.id' was preventing insert with ID.
+  // We can just remove this line entirely, or only delete if it is undefined/null?
+  // Simply removing the line is safest for 'register' which sends an ID.
+  // But for 'update', we might send ID in body. Supabase update ignores ID in body if we use eq('id', ...). 
+  // So it is safe to keep.
+  // BUT wait, toDB is used by update too. 
+  // Let's just remove the delete.
   if (pet.personalityDesc) dbPet.personality_desc = pet.personalityDesc;
   if (pet.responsibilityType) dbPet.responsibility_type = pet.responsibilityType;
   if (pet.ongId) dbPet.ong_id = pet.ongId;
