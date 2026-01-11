@@ -64,7 +64,31 @@ const AdminDashboard: React.FC = () => {
       loadPets();
     }
   };
+  const handleCleanDatabase = async () => {
+    if (window.confirm('ATENÇÃO CRÍTICA: Isso apagará TODOS os pets cadastrados no sistema (Adoção, Apadrinhamento e Pets de Usuários). Essa ação é IRREVERSÍVEL. Deseja continuar?')) {
+      const confirm2 = window.prompt('Digite "DELETAR TUDO" para confirmar a exclusão em massa:');
+      if (confirm2 === 'DELETAR TUDO') {
+        try {
+          // Delete from both tables
+          await petService.deleteAll();
+          await import('../services/userPetService').then(m => m.userPetService.deleteAll());
 
+          await logService.add({
+            action: 'LIMPEZA_SISTEMA',
+            module: 'system',
+            details: 'O administrador realizou a limpeza completa do banco de dados de pets.',
+            severity: 'critical'
+          });
+
+          alert('Limpeza concluída com sucesso. Todos os pets foram removidos.');
+          loadPets();
+        } catch (error) {
+          console.error(error);
+          alert('Ocorreu um erro durante a limpeza. Verifique o console.');
+        }
+      }
+    }
+  };
   const handleSaveMapPoint = (e: React.FormEvent) => {
     e.preventDefault();
     mapService.save(mapForm);
@@ -97,6 +121,20 @@ const AdminDashboard: React.FC = () => {
           className="wood-panel px-6 py-3 rounded-2xl text-[#5d2e0a] font-black text-sm shadow-xl hover:bg-[#d2b48c] transition-all border-b-4 border-[#c9a688] flex items-center gap-2"
         >
           <MapIcon size={18} /> Gerir Mapa
+        </button>
+        <button
+          onClick={loadPets}
+          className="wood-panel p-3 rounded-2xl text-[#5d2e0a] hover:bg-[#d2b48c] transition-all border-b-4 border-[#c9a688] shadow-md"
+          title="Atualizar Banco de Dados"
+        >
+          <Database size={18} className={loading ? "animate-spin" : ""} />
+        </button>
+        <button
+          onClick={handleCleanDatabase}
+          className="bg-red-100 p-3 rounded-2xl text-red-600 hover:bg-red-200 transition-all border-b-4 border-red-300 shadow-md"
+          title="LIMPAR BANCO DE DADOS (CUIDADO)"
+        >
+          <Trash2 size={18} />
         </button>
         <Link
           to="/cadastrar"
