@@ -298,6 +298,82 @@ const PetDetails: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Visit Scheduling Modal */}
+      {isScheduleModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="bg-[#fdfaf7] rounded-[32px] w-full max-w-md p-8 relative border-4 border-[#c9a688] shadow-2xl animate-in zoom-in-95 duration-300">
+            <button
+              onClick={() => setIsScheduleModalOpen(false)}
+              className="absolute top-6 right-6 text-[#8b4513] hover:bg-[#ebdccc] p-2 rounded-full transition-colors"
+            >
+              <X size={20} />
+            </button>
+
+            {!isScheduled ? (
+              <form onSubmit={handleScheduleVisit} className="space-y-6">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 grass-bg rounded-2xl mx-auto flex items-center justify-center text-white border-2 border-[#3d7a22] shadow-lg mb-4">
+                    <Calendar size={32} />
+                  </div>
+                  <h3 className="text-2xl font-black text-[#5d2e0a]">Agendar Visita</h3>
+                  <p className="text-sm text-[#8b4513] font-medium italic mt-1">Marque um encontro com {pet.name}</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-[10px] font-black text-[#8b4513] uppercase ml-3 block mb-2">Data da Visita</label>
+                    <input
+                      type="date"
+                      required
+                      value={scheduleDate}
+                      onChange={(e) => setScheduleDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]}
+                      className="w-full wood-inner p-3 text-sm font-bold border-2 border-[#c9a688] outline-none focus:ring-4 focus:ring-[#55a630]/20 transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-black text-[#8b4513] uppercase ml-3 block mb-2">Horário</label>
+                    <input
+                      type="time"
+                      required
+                      value={scheduleTime}
+                      onChange={(e) => setScheduleTime(e.target.value)}
+                      className="w-full wood-inner p-3 text-sm font-bold border-2 border-[#c9a688] outline-none focus:ring-4 focus:ring-[#55a630]/20 transition-all"
+                    />
+                  </div>
+
+                  <div className="wood-inner p-4 border-2 border-[#c9a688] border-dashed flex items-start gap-3">
+                    <ShieldCheck className="text-[#55a630] flex-shrink-0" size={20} />
+                    <p className="text-[9px] font-bold text-[#8b4513] leading-tight">
+                      Sua solicitação será enviada ao responsável pelo pet. Aguarde a confirmação por email.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full grass-bg py-4 rounded-2xl text-white font-black text-lg shadow-xl border-b-6 border-[#3d7a22] hover:translate-y-[-2px] transition-transform flex items-center justify-center gap-3"
+                >
+                  Confirmar Agendamento <Calendar size={20} />
+                </button>
+              </form>
+            ) : (
+              <div className="text-center py-8 space-y-4">
+                <div className="w-20 h-20 grass-bg rounded-full mx-auto flex items-center justify-center text-white animate-bounce">
+                  <CheckCircle size={40} />
+                </div>
+                <h3 className="text-2xl font-black text-[#5d2e0a]">Visita agendada!</h3>
+                <p className="text-sm text-[#8b4513] font-medium px-4">
+                  A solicitação foi enviada ao responsável por {pet.name}.
+                  Você receberá um email com a confirmação.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
