@@ -8,8 +8,8 @@ import {
   FileDown, X, Calendar, Download, Loader2, BarChart3, PieChart, ListFilter, Search, ArrowRight, Coins, Save, Layout as LayoutIcon,
   Medal, Target, Trophy
 } from 'lucide-react';
-// import { jsPDF } from 'jspdf';
-// import 'jspdf-autotable';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 import { petService } from '../services/petService';
 import { ongService } from '../services/ongService';
 import { userService } from '../services/userService';
@@ -190,8 +190,40 @@ const AdminManagementHub: React.FC = () => {
   };
 
   const handleExtractReport = async () => {
-    alert("Funcionalidade em manutenção para atualizações de segurança.");
-    setIsReportModalOpen(false);
+    try {
+      setIsGenerating(true);
+
+      // Import PDF generator
+      const { generatePetReport, generateUserReport, generateFullReport } = await import('../utils/pdfGenerator');
+
+      // Fetch data based on module
+      if (reportConfig.module === 'animals') {
+        const pets = await petService.getAll();
+        generatePetReport(pets);
+      } else if (reportConfig.module === 'users') {
+        const users = await userService.listAllFromFirestore();
+        generateUserReport(users);
+      } else {
+        // All modules
+        const pets = await petService.getAll();
+        const users = await userService.listAllFromFirestore();
+        generateFullReport(pets, users);
+      }
+
+      await logService.add({
+        action: 'RELATÓRIO',
+        module: 'system',
+        details: `Relatório de ${reportConfig.module} gerado em PDF.`,
+        severity: 'info'
+      });
+
+      setIsReportModalOpen(false);
+    } catch (error) {
+      console.error('Erro ao gerar relatório:', error);
+      alert('Erro ao gerar o relatório PDF. Verifique o console.');
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleRegisterPartner = async (e: React.FormEvent) => {
