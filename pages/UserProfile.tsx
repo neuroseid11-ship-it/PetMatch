@@ -5,7 +5,7 @@ import {
    User, Mail, Phone, FileText, Calendar, ShieldCheck,
    Edit3, Camera, Building2, Heart, CheckCircle, Clock, XCircle,
    Plus, Dog, Cat, Syringe, ClipboardList, Trash2, Save, X, Upload, Info, AlertTriangle,
-   Store, Tag, MapPin, Instagram, ImageIcon, Sparkles, Home, Building, Zap, Coffee, Settings, Stethoscope, Scissors, Pill, Gift, Cpu, ChevronRight
+   Store, Tag, MapPin, Instagram, ImageIcon, Sparkles, Home, Building, Zap, Coffee, Settings, Stethoscope, Scissors, Pill, Gift, Cpu, ChevronRight, Bell, BellOff
 } from 'lucide-react';
 import { userService } from '../services/userService';
 import { userPetService } from '../services/userPetService';
@@ -13,6 +13,8 @@ import { petService } from '../services/petService';
 import { profileService } from '../services/profileService';
 import { supabase } from '../lib/supabaseClient';
 import { PlatformUser, UserPet, VaccineRecord, Promotion, RegisteredPet } from '../types';
+import NotificationService from '../services/notificationService';
+import ReminderService, { PetReminder } from '../services/reminderService';
 
 const UserProfile: React.FC = () => {
    const { id } = useParams<{ id: string }>();
@@ -52,6 +54,11 @@ const UserProfile: React.FC = () => {
 
    const [profileFormData, setProfileFormData] = useState<Partial<PlatformUser>>({});
 
+   // Estados de notificação e lembretes
+   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+   const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
+   const [pendingReminders, setPendingReminders] = useState<PetReminder[]>([]);
+
    useEffect(() => {
       const fetchProfile = async () => {
          setLoading(true);
@@ -80,6 +87,16 @@ const UserProfile: React.FC = () => {
                   const pets = await userPetService.getByOwner(profile.email);
                   setUserPets(pets);
 
+                  // Verificar lembretes e notificações
+                  if (NotificationService.isSupported()) {
+                     setNotificationPermission(NotificationService.getPermissionStatus());
+                     setNotificationsEnabled(NotificationService.getPermissionStatus() === 'granted');
+
+                     // Verificar e enviar lembretes pendentes
+                     const reminders = await ReminderService.checkAndNotify(pets);
+                     setPendingReminders(reminders);
+                  }
+
                   // Fetch adoption pets
                   const allAdoptionPets = await petService.getAll();
                   setAdoptionPets(allAdoptionPets.filter(p => p.ownerEmail?.toLowerCase() === profile.email?.toLowerCase()));
@@ -97,6 +114,17 @@ const UserProfile: React.FC = () => {
 
    const isAdmin = currentUserRole === 'admin';
    const canEdit = !!user && (isAdmin || user.email === localStorage.getItem('petmatch_user_email')); // Simplified check
+
+   const handleToggleNotifications = async () => {
+      const granted = await NotificationService.requestPermission();
+      setNotificationsEnabled(granted);
+      setNotificationPermission(NotificationService.getPermissionStatus());
+
+      if (granted && userPets.length > 0) {
+         const reminders = await ReminderService.checkAndNotify(userPets);
+         setPendingReminders(reminders);
+      }
+   };
 
    const handleSaveBusiness = async () => {
       if (!user || !partnerForm) return;
