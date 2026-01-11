@@ -225,15 +225,17 @@ const AdminManagementHub: React.FC = () => {
         generateStoreReport(products);
       } else if (reportConfig.module === 'gamification') {
         const { missionService } = await import('../services/missionService');
+        const { default: RankingService } = await import('../services/rankingService');
         const missions = await missionService.getAll();
-        const ranking: any[] = []; // Ranking será implementado futuramente
+        const ranking = await RankingService.getAll();
         generateGamificationReport(missions, ranking);
       } else if (reportConfig.module === 'partners') {
         const users = await userService.listAllFromFirestore();
         const partners = users.filter(u => u.type === 'partner');
         generatePartnerReport(partners);
       } else if (reportConfig.module === 'schedules') {
-        const visits = messageService.getAll().filter(m => m.type === 'visit');
+        const { default: VisitService } = await import('../services/visitService');
+        const visits = await VisitService.getAll();
         generateScheduleReport(visits);
       } else {
         // All modules
