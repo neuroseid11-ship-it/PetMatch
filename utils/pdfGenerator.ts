@@ -269,3 +269,468 @@ export const generateFullReport = (pets: RegisteredPet[], users: PlatformUser[])
 
     doc.save(`PetMatch_Relatorio_Completo_${new Date().toISOString().split('T')[0]}.pdf`);
 };
+
+export const generateOngReport = (ongs: any[], pets: RegisteredPet[]) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // Header
+    doc.setFillColor(255, 107, 107);
+    doc.rect(0, 0, pageWidth, 30, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PetMatch - Relatório de ONGs', pageWidth / 2, 20, { align: 'center' });
+
+    // Timestamp
+    doc.setFontSize(10);
+    doc.setTextColor(139, 69, 19);
+    doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 40);
+
+    // Summary
+    const totalOngs = ongs.length;
+    const totalPets = pets.length;
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Resumo Geral', 14, 50);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total de ONGs: ${totalOngs}`, 14, 58);
+    doc.text(`Total de Pets nas ONGs: ${totalPets}`, 14, 64);
+
+    // Table
+    const tableData = ongs.map(ong => {
+        const ongPets = pets.filter(p => p.shelter === ong.name);
+        return [
+            ong.name || 'Sem nome',
+            ong.responsible || 'N/A',
+            ong.city || 'N/A',
+            ongPets.length.toString()
+        ];
+    });
+
+    autoTable(doc, {
+        startY: 75,
+        head: [['Nome da ONG', 'Responsável', 'Cidade', 'Total Pets']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: {
+            fillColor: [255, 107, 107],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            fontSize: 10
+        },
+        bodyStyles: {
+            fontSize: 9,
+            textColor: [93, 46, 10]
+        },
+        alternateRowStyles: {
+            fillColor: [241, 223, 207]
+        },
+        margin: { left: 14, right: 14 }
+    });
+
+    // Footer
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(139, 69, 19);
+        doc.text(
+            `Página ${i} de ${pageCount}`,
+            pageWidth / 2,
+            doc.internal.pageSize.getHeight() - 10,
+            { align: 'center' }
+        );
+    }
+
+    doc.save(`PetMatch_Relatorio_ONGs_${new Date().toISOString().split('T')[0]}.pdf`);
+};
+
+export const generateMessageReport = (messages: any[]) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // Header
+    doc.setFillColor(59, 130, 246);
+    doc.rect(0, 0, pageWidth, 30, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PetMatch - Relatório de Mensagens', pageWidth / 2, 20, { align: 'center' });
+
+    // Timestamp
+    doc.setFontSize(10);
+    doc.setTextColor(139, 69, 19);
+    doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 40);
+
+    // Summary
+    const totalMessages = messages.length;
+    const adoptionMsgs = messages.filter(m => m.type === 'interest').length;
+    const visitMsgs = messages.filter(m => m.type === 'visit').length;
+    const pending = messages.filter(m => m.status === 'pending').length;
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Resumo Geral', 14, 50);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total de Mensagens: ${totalMessages}`, 14, 58);
+    doc.text(`Interesse em Adoção: ${adoptionMsgs} | Agendamento de Visitas: ${visitMsgs}`, 14, 64);
+    doc.text(`Pendentes: ${pending}`, 14, 70);
+
+    // Table
+    const tableData = messages.map(msg => [
+        msg.petName || 'N/A',
+        msg.type === 'interest' ? 'Adoção' : msg.type === 'visit' ? 'Visita' : 'Outro',
+        new Date(msg.createdAt || Date.now()).toLocaleDateString('pt-BR'),
+        msg.status === 'pending' ? 'Pendente' : 'Respondida'
+    ]);
+
+    autoTable(doc, {
+        startY: 80,
+        head: [['Pet', 'Tipo', 'Data', 'Status']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: {
+            fillColor: [59, 130, 246],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            fontSize: 10
+        },
+        bodyStyles: {
+            fontSize: 9,
+            textColor: [93, 46, 10]
+        },
+        alternateRowStyles: {
+            fillColor: [241, 223, 207]
+        },
+        margin: { left: 14, right: 14 }
+    });
+
+    // Footer
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(139, 69, 19);
+        doc.text(
+            `Página ${i} de ${pageCount}`,
+            pageWidth / 2,
+            doc.internal.pageSize.getHeight() - 10,
+            { align: 'center' }
+        );
+    }
+
+    doc.save(`PetMatch_Relatorio_Mensagens_${new Date().toISOString().split('T')[0]}.pdf`);
+};
+
+export const generateStoreReport = (products: any[]) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // Header
+    doc.setFillColor(205, 127, 50);
+    doc.rect(0, 0, pageWidth, 30, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PetMatch - Relatório da Loja', pageWidth / 2, 20, { align: 'center' });
+
+    // Timestamp
+    doc.setFontSize(10);
+    doc.setTextColor(139, 69, 19);
+    doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 40);
+
+    // Summary
+    const totalProducts = products.length;
+    const lowStock = products.filter(p => p.stock <= 5).length;
+    const categories = [...new Set(products.map(p => p.category))].length;
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Resumo Geral', 14, 50);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total de Produtos: ${totalProducts}`, 14, 58);
+    doc.text(`Produtos com Estoque Baixo: ${lowStock}`, 14, 64);
+    doc.text(`Categorias: ${categories}`, 14, 70);
+
+    // Table
+    const tableData = products.map(product => [
+        product.name || 'Sem nome',
+        product.category || 'N/A',
+        `${product.price || 0} PC`,
+        product.stock?.toString() || '0'
+    ]);
+
+    autoTable(doc, {
+        startY: 80,
+        head: [['Produto', 'Categoria', 'Preço (PetCoins)', 'Estoque']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: {
+            fillColor: [205, 127, 50],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            fontSize: 10
+        },
+        bodyStyles: {
+            fontSize: 9,
+            textColor: [93, 46, 10]
+        },
+        alternateRowStyles: {
+            fillColor: [241, 223, 207]
+        },
+        margin: { left: 14, right: 14 }
+    });
+
+    // Footer
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(139, 69, 19);
+        doc.text(
+            `Página ${i} de ${pageCount}`,
+            pageWidth / 2,
+            doc.internal.pageSize.getHeight() - 10,
+            { align: 'center' }
+        );
+    }
+
+    doc.save(`PetMatch_Relatorio_Loja_${new Date().toISOString().split('T')[0]}.pdf`);
+};
+
+export const generateGamificationReport = (missions: any[], ranking: any[]) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // Header
+    doc.setFillColor(2, 132, 199);
+    doc.rect(0, 0, pageWidth, 30, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PetMatch - Relatório de Gamificação', pageWidth / 2, 20, { align: 'center' });
+
+    // Timestamp
+    doc.setFontSize(10);
+    doc.setTextColor(139, 69, 19);
+    doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 40);
+
+    // Summary
+    const totalMissions = missions.length;
+    const activeMissions = missions.filter(m => m.active).length;
+    const totalInRanking = ranking.length;
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Resumo Geral', 14, 50);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total de Missões: ${totalMissions}`, 14, 58);
+    doc.text(`Missões Ativas: ${activeMissions}`, 14, 64);
+    doc.text(`Usuários no Ranking: ${totalInRanking}`, 14, 70);
+
+    // Missions Table
+    const missionTableData = missions.map(mission => [
+        mission.title || 'Sem título',
+        mission.type || 'N/A',
+        `+${mission.xpReward || 0} XP`,
+        `+${mission.coinReward || 0} PC`
+    ]);
+
+    autoTable(doc, {
+        startY: 80,
+        head: [['Missão', 'Tipo', 'XP', 'Coins']],
+        body: missionTableData,
+        theme: 'grid',
+        headStyles: {
+            fillColor: [2, 132, 199],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            fontSize: 10
+        },
+        bodyStyles: {
+            fontSize: 9,
+            textColor: [93, 46, 10]
+        },
+        alternateRowStyles: {
+            fillColor: [241, 223, 207]
+        },
+        margin: { left: 14, right: 14 }
+    });
+
+    // Footer
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(139, 69, 19);
+        doc.text(
+            `Página ${i} de ${pageCount}`,
+            pageWidth / 2,
+            doc.internal.pageSize.getHeight() - 10,
+            { align: 'center' }
+        );
+    }
+
+    doc.save(`PetMatch_Relatorio_Gamificacao_${new Date().toISOString().split('T')[0]}.pdf`);
+};
+
+export const generatePartnerReport = (partners: PlatformUser[]) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // Header
+    doc.setFillColor(85, 166, 48);
+    doc.rect(0, 0, pageWidth, 30, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PetMatch - Relatório de Parceiros', pageWidth / 2, 20, { align: 'center' });
+
+    // Timestamp
+    doc.setFontSize(10);
+    doc.setTextColor(139, 69, 19);
+    doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 40);
+
+    // Summary
+    const totalPartners = partners.length;
+    const petshops = partners.filter(p => p.partnerProfile?.category === 'petshop').length;
+    const clinicas = partners.filter(p => p.partnerProfile?.category === 'clinica').length;
+    const servicos = partners.filter(p => p.partnerProfile?.category === 'servico').length;
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Resumo Geral', 14, 50);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total de Parceiros: ${totalPartners}`, 14, 58);
+    doc.text(`Pet Shops: ${petshops} | Clínicas: ${clinicas} | Serviços: ${servicos}`, 14, 64);
+
+    // Table
+    const tableData = partners.map(partner => [
+        partner.name || 'Sem nome',
+        partner.partnerProfile?.category === 'petshop' ? 'Pet Shop' :
+            partner.partnerProfile?.category === 'clinica' ? 'Clínica' : 'Serviço',
+        partner.partnerProfile?.location || 'N/A',
+        partner.email
+    ]);
+
+    autoTable(doc, {
+        startY: 75,
+        head: [['Nome', 'Categoria', 'Localização', 'Email']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: {
+            fillColor: [85, 166, 48],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            fontSize: 10
+        },
+        bodyStyles: {
+            fontSize: 9,
+            textColor: [93, 46, 10]
+        },
+        alternateRowStyles: {
+            fillColor: [241, 223, 207]
+        },
+        margin: { left: 14, right: 14 }
+    });
+
+    // Footer
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(139, 69, 19);
+        doc.text(
+            `Página ${i} de ${pageCount}`,
+            pageWidth / 2,
+            doc.internal.pageSize.getHeight() - 10,
+            { align: 'center' }
+        );
+    }
+
+    doc.save(`PetMatch_Relatorio_Parceiros_${new Date().toISOString().split('T')[0]}.pdf`);
+};
+
+export const generateScheduleReport = (schedules: any[]) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+
+    // Header
+    doc.setFillColor(245, 158, 11);
+    doc.rect(0, 0, pageWidth, 30, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('PetMatch - Relatório de Agendamentos', pageWidth / 2, 20, { align: 'center' });
+
+    // Timestamp
+    doc.setFontSize(10);
+    doc.setTextColor(139, 69, 19);
+    doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 40);
+
+    // Summary
+    const totalSchedules = schedules.length;
+    const confirmed = schedules.filter(s => s.status === 'confirmed').length;
+    const pending = schedules.filter(s => s.status === 'pending').length;
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Resumo Geral', 14, 50);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Total de Visitas: ${totalSchedules}`, 14, 58);
+    doc.text(`Confirmadas: ${confirmed} | Pendentes: ${pending}`, 14, 64);
+
+    // Table
+    const tableData = schedules.map(schedule => [
+        schedule.petName || 'N/A',
+        schedule.date ? new Date(schedule.date).toLocaleDateString('pt-BR') : 'N/A',
+        schedule.time || 'N/A',
+        schedule.userName || 'N/A',
+        schedule.location || 'N/A'
+    ]);
+
+    autoTable(doc, {
+        startY: 75,
+        head: [['Pet', 'Data', 'Horário', 'Solicitante', 'Localização']],
+        body: tableData,
+        theme: 'grid',
+        headStyles: {
+            fillColor: [245, 158, 11],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            fontSize: 10
+        },
+        bodyStyles: {
+            fontSize: 8,
+            textColor: [93, 46, 10]
+        },
+        alternateRowStyles: {
+            fillColor: [241, 223, 207]
+        },
+        margin: { left: 14, right: 14 }
+    });
+
+    // Footer
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(139, 69, 19);
+        doc.text(
+            `Página ${i} de ${pageCount}`,
+            pageWidth / 2,
+            doc.internal.pageSize.getHeight() - 10,
+            { align: 'center' }
+        );
+    }
+
+    doc.save(`PetMatch_Relatorio_Agendamentos_${new Date().toISOString().split('T')[0]}.pdf`);
+};

@@ -193,8 +193,18 @@ const AdminManagementHub: React.FC = () => {
     try {
       setIsGenerating(true);
 
-      // Import PDF generator
-      const { generatePetReport, generateUserReport, generateFullReport } = await import('../utils/pdfGenerator');
+      // Import PDF generators
+      const {
+        generatePetReport,
+        generateUserReport,
+        generateFullReport,
+        generateOngReport,
+        generateMessageReport,
+        generateStoreReport,
+        generateGamificationReport,
+        generatePartnerReport,
+        generateScheduleReport
+      } = await import('../utils/pdfGenerator');
 
       // Fetch data based on module
       if (reportConfig.module === 'animals') {
@@ -203,6 +213,28 @@ const AdminManagementHub: React.FC = () => {
       } else if (reportConfig.module === 'users') {
         const users = await userService.listAllFromFirestore();
         generateUserReport(users);
+      } else if (reportConfig.module === 'ongs') {
+        const ongs = await ongService.getAll();
+        const pets = await petService.getAll();
+        generateOngReport(ongs, pets);
+      } else if (reportConfig.module === 'messages') {
+        const messages = messageService.getAll();
+        generateMessageReport(messages);
+      } else if (reportConfig.module === 'store') {
+        const products = await productService.getAll();
+        generateStoreReport(products);
+      } else if (reportConfig.module === 'gamification') {
+        const { missionService } = await import('../services/missionService');
+        const missions = await missionService.getAll();
+        const ranking: any[] = []; // Ranking será implementado futuramente
+        generateGamificationReport(missions, ranking);
+      } else if (reportConfig.module === 'partners') {
+        const users = await userService.listAllFromFirestore();
+        const partners = users.filter(u => u.type === 'partner');
+        generatePartnerReport(partners);
+      } else if (reportConfig.module === 'schedules') {
+        const visits = messageService.getAll().filter(m => m.type === 'visit');
+        generateScheduleReport(visits);
       } else {
         // All modules
         const pets = await petService.getAll();
@@ -508,7 +540,13 @@ const AdminManagementHub: React.FC = () => {
                 >
                   <option value="all">Todos os Módulos</option>
                   <option value="animals">Animais</option>
+                  <option value="ongs">ONGs</option>
                   <option value="users">Usuários</option>
+                  <option value="messages">Mensagens</option>
+                  <option value="store">Loja</option>
+                  <option value="gamification">Gamificação</option>
+                  <option value="partners">Parceiros</option>
+                  <option value="schedules">Agendamentos</option>
                 </select>
               </div>
               <button
