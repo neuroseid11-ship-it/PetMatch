@@ -6,7 +6,7 @@ import {
   ShoppingBag, ChevronRight, AlertCircle,
   CheckCircle, Dog, Cat, MessageSquare, Package, TrendingUp,
   FileDown, X, Calendar, Download, Loader2, BarChart3, PieChart, ListFilter, Search, ArrowRight, Coins, Save, Layout as LayoutIcon,
-  Medal, Target, Trophy
+  Medal, Target, Trophy, FileSpreadsheet
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -20,6 +20,7 @@ import { RegisteredPet, PlatformUser } from '../types';
 import PageHeader from '../components/PageHeader';
 import HubCard from '../components/HubCard';
 import TabButton from '../components/TabButton';
+import ExcelExporter from '../utils/excelExporter';
 
 // jsPDF types handled via any to avoid conflicts with autotable extension
 
@@ -255,6 +256,78 @@ const AdminManagementHub: React.FC = () => {
     } catch (error) {
       console.error('Erro ao gerar relatório:', error);
       alert('Erro ao gerar o relatório PDF. Verifique o console.');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleExtractExcel = async () => {
+    try {
+      setIsGenerating(true);
+
+      if (reportConfig.module === 'animals') {
+        const pets = await petService.getAll();
+        ExcelExporter.exportPets(pets);
+      } else if (reportConfig.module === 'users') {
+        const users = await userService.listAllFromFirestore();
+        ExcelExporter.exportUsers(users);
+      } else if (reportConfig.module === 'ongs') {
+        const ongs = await ongService.getAll();
+        const pets = await petService.getAll();
+        ExcelExporter.exportOngs(ongs, pets);
+      } else if (reportConfig.module === 'messages') {
+        const messages = messageService.getAll();
+        ExcelExporter.exportMessages(messages);
+      } else if (reportConfig.module === 'store') {
+        const products = await productService.getAll();
+        ExcelExporter.exportStore(products);
+      } else if (reportConfig.module === 'gamification') {
+        const { missionService } = await import('../services/missionService');
+        const { default: RankingService } = await import('../services/rankingService');
+        const missions = await missionService.getAll();
+        const ranking = await RankingService.getAll();
+        ExcelExporter.exportGamification(missions, ranking);
+      } else if (reportConfig.module === 'partners') {
+        const users = await userService.listAllFromFirestore();
+        const partners = users.filter(u => u.type === 'partner');
+        ExcelExporter.exportPartners(partners);
+      } else if (reportConfig.module === 'schedules') {
+        const { default: VisitService } = await import('../services/visitService');
+        const visits = await VisitService.getAll();
+        ExcelExporter.exportSchedules(visits);
+      } else {
+        // All modules - relatório completo
+        const pets = await petService.getAll();
+        const users = await userService.listAllFromFirestore();
+        const ongs = await ongService.getAll();
+        const messages = messageService.getAll();
+        const products = await productService.getAll();
+        const { missionService } = await import('../services/missionService');
+        const { default: RankingService } = await import('../services/rankingService');
+        const { default: VisitService } = await import('../services/visitService');
+        const missions = await missionService.getAll();
+        const ranking = await RankingService.getAll();
+        const partners = users.filter(u => u.type === 'partner');
+        const visits = await VisitService.getAll();
+
+        ExcelExporter.exportFullReport({
+          pets, users, ongs, messages, products,
+          missions, ranking, partners, visits
+        });
+      }
+
+      logService.add({
+        action: 'excel_export',
+        module: 'system',
+        details: `Relatório de ${reportConfig.module} exportado em Excel.`,
+        severity: 'info'
+      });
+
+      alert('Arquivo Excel baixado com sucesso!');
+      setIsReportModalOpen(false);
+    } catch (error) {
+      console.error('Erro ao exportar Excel:', error);
+      alert('Erro ao gerar arquivo Excel. Verifique o console.');
     } finally {
       setIsGenerating(false);
     }
@@ -551,13 +624,24 @@ const AdminManagementHub: React.FC = () => {
                   <option value="schedules">Agendamentos</option>
                 </select>
               </div>
-              <button
-                onClick={handleExtractReport}
-                disabled={isGenerating}
-                className="w-full grass-bg py-4 rounded-2xl text-white font-black text-sm shadow-xl border-b-6 border-[#3d7a22] flex items-center justify-center gap-3 transition-transform hover:scale-[1.01] disabled:opacity-50"
-              >
-                {isGenerating ? <Loader2 className="animate-spin" size={20} /> : <Download size={20} />} Gerar PDF
-              </button>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={handleExtractReport}
+                  disabled={isGenerating}
+                  className="grass-bg py-4 rounded-2xl text-white font-black text-[11px] uppercase shadow-xl border-b-4 border-[#3d7a22] flex items-center justify-center gap-2 transition-transform hover:scale-[1.01] disabled:opacity-50"
+                >
+                  {isGenerating ? <Loader2 className="animate-spin" size={18} /> : <Download size={18} />}
+                  PDF
+                </button>
+                <button
+                  onClick={handleExtractExcel}
+                  disabled={isGenerating}
+                  className="bg-green-700 hover:bg-green-800 py-4 rounded-2xl text-white font-black text-[11px] uppercase shadow-xl border-b-4 border-green-900 flex items-center justify-center gap-2 transition-transform hover:scale-[1.01] disabled:opacity-50"
+                >
+                  {isGenerating ? <Loader2 className="animate-spin" size={18} /> : <FileSpreadsheet size={18} />}
+                  EXCEL
+                </button>
+              </div>
             </div>
           </div>
         </div>
