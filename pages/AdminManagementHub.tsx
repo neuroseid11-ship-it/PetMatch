@@ -33,7 +33,10 @@ const AdminManagementHub: React.FC = () => {
   const [reportConfig, setReportConfig] = useState({
     module: 'all',
     period: '7',
-    customDays: ''
+    customDays: '',
+    dateFilter: 'all' as 'all' | '7d' | '30d' | '90d' | 'custom',
+    startDate: '',
+    endDate: ''
   });
   const [isGenerating, setIsGenerating] = useState(false);
   const [isPartnerModalOpen, setIsPartnerModalOpen] = useState(false);
@@ -624,6 +627,47 @@ const AdminManagementHub: React.FC = () => {
                   <option value="schedules">Agendamentos</option>
                 </select>
               </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-[#8b4513] uppercase ml-2 flex items-center gap-1">
+                  <Calendar size={12} /> Período
+                </label>
+                <select
+                  value={reportConfig.dateFilter}
+                  onChange={e => setReportConfig({ ...reportConfig, dateFilter: e.target.value as any })}
+                  className="w-full wood-inner p-3 text-sm font-black border-2 border-[#c9a688] outline-none"
+                >
+                  <option value="all">Todos os Registros</option>
+                  <option value="7d">Últimos 7 Dias</option>
+                  <option value="30d">Últimos 30 Dias</option>
+                  <option value="90d">Últimos 90 Dias</option>
+                  <option value="custom">Personalizado</option>
+                </select>
+              </div>
+
+              {reportConfig.dateFilter === 'custom' && (
+                <div className="grid grid-cols-2 gap-3 p-4 wood-inner border-2 border-dashed border-[#c9a688] rounded-xl">
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-black text-[#8b4513] uppercase ml-1">Data Início</label>
+                    <input
+                      type="date"
+                      value={reportConfig.startDate}
+                      onChange={e => setReportConfig({ ...reportConfig, startDate: e.target.value })}
+                      className="w-full wood-inner p-2 text-xs border border-[#c9a688] outline-none"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[9px] font-black text-[#8b4513] uppercase ml-1">Data Fim</label>
+                    <input
+                      type="date"
+                      value={reportConfig.endDate}
+                      onChange={e => setReportConfig({ ...reportConfig, endDate: e.target.value })}
+                      className="w-full wood-inner p-2 text-xs border border-[#c9a688] outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={handleExtractReport}
