@@ -35,6 +35,7 @@ import AuthPage from './pages/AuthPage';
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [userStatus, setUserStatus] = useState<string>('pending');
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,13 +43,17 @@ const App: React.FC = () => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setIsAuthenticated(!!session);
       if (session?.user) {
+        let adminRole = false;
         if (session.user.email) {
           localStorage.setItem('petmatch_user_email', session.user.email);
           // Temporary role mock until we have roles in DB
           if (session.user.email.includes('admin') || session.user.email.includes('neuroseid11')) {
             localStorage.setItem('petmatch_user_role', 'admin');
+            adminRole = true;
+            setIsAdmin(true);
           } else {
             localStorage.setItem('petmatch_user_role', 'user');
+            setIsAdmin(false);
           }
         }
 
@@ -77,12 +82,15 @@ const App: React.FC = () => {
 
         if (session.user.email.includes('admin') || session.user.email.includes('neuroseid11')) {
           localStorage.setItem('petmatch_user_role', 'admin');
+          setIsAdmin(true);
         } else {
           localStorage.setItem('petmatch_user_role', 'user');
+          setIsAdmin(false);
         }
       } else {
         localStorage.removeItem('petmatch_user_email');
         localStorage.removeItem('petmatch_user_role');
+        setIsAdmin(false);
       }
     });
 
@@ -97,6 +105,7 @@ const App: React.FC = () => {
     localStorage.removeItem('sb-access-token'); // If used directly
     localStorage.removeItem('sb-refresh-token'); // If used directly
     setIsAuthenticated(false);
+    setIsAdmin(false);
   };
 
   if (loading) {
@@ -125,7 +134,7 @@ const App: React.FC = () => {
           path="/*"
           element={
             isAuthenticated ? (
-              userStatus === 'pending' ? (
+              userStatus === 'pending' && !isAdmin ? (
                 <div className="min-h-screen bg-[#fdf5ed] flex flex-col items-center justify-center p-8 text-center space-y-6">
                   <div className="wood-panel p-10 rounded-[40px] border-4 border-[#c9a688] shadow-2xl max-w-lg bg-white relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-full h-2 grass-bg"></div>
