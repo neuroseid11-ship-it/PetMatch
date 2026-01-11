@@ -26,6 +26,7 @@ const PetDetails: React.FC = () => {
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [scheduleDate, setScheduleDate] = useState('');
   const [scheduleTime, setScheduleTime] = useState('');
+  const [visitLocation, setVisitLocation] = useState('');
   const [isScheduled, setIsScheduled] = useState(false);
 
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -98,10 +99,11 @@ const PetDetails: React.FC = () => {
         petImage: pet.images[0],
         userName: 'Visitante Logado',
         userEmail: 'visitante@exemplo.com',
-        message: `Visita agendada para ${scheduleDate} às ${scheduleTime}.`,
+        message: `Visita agendada para ${scheduleDate} às ${scheduleTime}${visitLocation ? ` em ${visitLocation}` : ''}.`,
         type: 'visit',
         visitDate: scheduleDate,
-        visitTime: scheduleTime
+        visitTime: scheduleTime,
+        address: visitLocation || undefined
       });
       setIsScheduled(true);
       setTimeout(() => {
@@ -341,6 +343,17 @@ const PetDetails: React.FC = () => {
                       value={scheduleTime}
                       onChange={(e) => setScheduleTime(e.target.value)}
                       className="w-full wood-inner p-3 text-sm font-bold border-2 border-[#c9a688] outline-none focus:ring-4 focus:ring-[#55a630]/20 transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-black text-[#8b4513] uppercase ml-3 block mb-2">Local do Encontro</label>
+                    <input
+                      type="text"
+                      value={visitLocation}
+                      onChange={(e) => setVisitLocation(e.target.value)}
+                      placeholder="Ex: Parque da Cidade, Centro"
+                      className="w-full wood-inner p-3 text-sm font-bold border-2 border-[#c9a688] outline-none focus:ring-4 focus:ring-[#55a630]/20 transition-all placeholder-[#8b4513]/30"
                     />
                   </div>
 

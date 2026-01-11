@@ -27,6 +27,7 @@ import UserProfile from './pages/UserProfile';
 import AdminONGs from './pages/AdminONGs';
 import AdminPartners from './pages/AdminPartners';
 import PartnerCompanies from './pages/PartnerCompanies';
+import AdminVisits from './pages/AdminVisits';
 import FAQ from './pages/FAQ';
 
 import { supabase } from './lib/supabaseClient';
@@ -178,6 +179,7 @@ const App: React.FC = () => {
                     <Route path="/admin/pets" element={<AdminDashboard />} />
                     <Route path="/admin/ongs" element={<AdminONGs />} />
                     <Route path="/admin/parceiros" element={<AdminPartners />} />
+                    <Route path="/admin/visitas" element={<AdminVisits />} />
                     <Route path="/admin/users" element={<AdminUsers />} />
                     <Route path="/admin/messages" element={<AdminMessages />} />
                     <Route path="/admin/logs" element={<AdminLogs />} />
